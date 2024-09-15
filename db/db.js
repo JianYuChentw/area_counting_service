@@ -31,8 +31,8 @@ async function testConnection() {
   }
 }
 
-testConnection()
+// testConnection()
 
-// module.exports = {
-//   pool,
-// };
+module.exports = {
+  pool,
+};
