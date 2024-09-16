@@ -5,55 +5,76 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WebSocket 區域計數器</title>
   <style>
+    html {
+      width: 99vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-left: 5px;
+    }
     body {
+      width: 90vw;
       font-family: Arial, sans-serif;
-      margin: 0 5px;
+      margin: 0 10px;
       padding: 0;
       display: flex;
-      flex-direction: column; /* 將主佈局設置為上下垂直排列 */
-      height: 100vh;
-      align-items: flex-start;
+      flex-direction: column;
+      align-items: center;
     }
 
-
+    #newMessage {
+      margin-left: 10px;
+    }
 
     #notificationArea {
-      width: 100%;
-      height: 200px; /* 設定推播訊息區域的最大高度 */
+      width: 50%;
+      height: 200px;
       overflow-y: auto;
-      padding: 10px;
-      background-color: #f9f9f9;
+      padding: 15px;
+      background-color: #f0f0f0;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      margin-bottom: 20px; /* 與下方計數器區域保持距離 */
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
     }
 
     #counterArea {
       width: 100%;
-      padding: 20px;
+      padding: 20px 10px;
       background-color: #f0f0f0;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      flex-grow: 1; /* 使其佔據剩餘的垂直空間 */
-      overflow-y: auto; /* 如果區域計數器過多時，可以滾動 */
+      flex-grow: 1;
     }
 
     #regionCounters {
       display: grid;
-      grid-template-columns: repeat(3, 1fr); /* 佈局為三列 */
-      gap: 20px; /* 列與列之間的間距 */
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .region-container {
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .region-title {
+      text-align: center;
+      height: 50px;
+      top: 0;
+      background-color: #fff;
+      padding: 10px;
+      font-size: 1rem;
+      border-bottom: 2px solid #ccc;
     }
 
     .region {
-      height: 500px; /* 固定每個區域高度為 500px */
+      height: 500px;
       padding: 15px;
       background-color: #fff;
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      overflow-y: auto; /* 當內容過多時啟用滾動 */
-    }
-
-    .region h2 {
-      margin: 0 0 15px;
-      color: #333;
+      overflow-y: auto;
     }
 
     .region-counter {
@@ -68,7 +89,7 @@
 
     .counter-details {
       display: flex;
-      gap: 20px; /* 水平排列的時間和計數值之間的間距 */
+      gap: 20px;
     }
 
     .counter-controls {
@@ -110,8 +131,8 @@
 </head>
 <body>
   <!-- 推播區域 -->
-   <h3 id="newMessage">推播訊息</h3>
-  <div id="notificationArea"> 
+  <h3 id="newMessage">推播訊息</h3>
+  <div id="notificationArea">
     <ul id="notificationList"></ul>
   </div>
 
@@ -123,68 +144,81 @@
 
   <script>
     // 建立 WebSocket 連接到伺服器
-    const socket = new WebSocket('ws://localhost:3000')
-
-    const regionCounters = document.getElementById('regionCounters')
-    const notificationList = document.getElementById('notificationList')
-    const notificationArea = document.getElementById('notificationArea')
-
+    const socket = new WebSocket('ws://localhost:3000');
+  
+    const regionCounters = document.getElementById('regionCounters');
+    const notificationList = document.getElementById('notificationList');
+    const notificationArea = document.getElementById('notificationArea');
+  
     // 檢查是否用戶正在手動滾動推播區域
     let isUserScrolling = false;
-
+  
     notificationArea.addEventListener('scroll', () => {
       const { scrollTop, scrollHeight, clientHeight } = notificationArea;
-      // 當滾動條到達頂部或者用戶手動滾動到中間時，視為用戶在手動滾動
       if (scrollHeight - scrollTop > clientHeight + 20) {
         isUserScrolling = true;
       } else {
         isUserScrolling = false;
       }
     });
-
-    // 啟動時提示用戶輸入姓名
-    let userName = null
+  
+    let userName = null;
     while (!userName) {
-      userName = prompt('請輸入您的姓名：')
+      userName = prompt('請輸入您的姓名：');
     }
-
-    // 當 WebSocket 連接成功時觸發
+  
     socket.onopen = () => {
-      console.log('已連接到 WebSocket 伺服器')
-      // 傳送使用者名稱給伺服器
-      socket.send(JSON.stringify({ type: 'nameSubmission', name: userName }))
-    }
-
-    // 當收到來自伺服器的訊息時觸發
+      console.log('已連接到 WebSocket 伺服器');
+      socket.send(JSON.stringify({ type: 'nameSubmission', name: userName }));
+    };
+  
     socket.onmessage = (event) => {
-      const data = JSON.parse(event.data)
-      console.log('伺服器回應:', data.regionData)
-
+      const data = JSON.parse(event.data);
+  
+      // 如果有 status 欄位並且狀態碼不是 200，則彈出提示框
+      if (data.status && data.status !== 200) {
+        alert(`操作失敗：${data.message || '未知錯誤'}`);
+        return;
+      }
+  
+      // 如果是區域數據或計數器更新
       if (data.type === 'regionData' || data.type === 'counterUpdate') {
-        // 初始化時清空現有的區域計數器
-        regionCounters.innerHTML = ''
-
-        // 根據 data.regionData 按區域分組生成區域計數器
-        const regionMap = {}
-
+        regionCounters.innerHTML = '';
+  
+        const regionMap = {};
+  
         data.regionData.forEach(item => {
           if (!regionMap[item.area]) {
-            regionMap[item.area] = []
+            regionMap[item.area] = [];
           }
-          regionMap[item.area].push(item)
-        })
-
-        // 生成區域和其下的計數器
+          regionMap[item.area].push(item);
+        });
+  
         for (const [regionName, counters] of Object.entries(regionMap)) {
-          const regionDiv = document.createElement('div')
-          regionDiv.className = 'region'
-          regionDiv.innerHTML = `<h2>${regionName}</h2>`
-
+          const regionContainer = document.createElement('div');
+          regionContainer.className = 'region-container';
+  
+          const regionTitle = document.createElement('div');
+          regionTitle.className = 'region-title';
+          regionTitle.innerHTML = `<h2>${regionName}</h2>`;
+  
+          const regionDiv = document.createElement('div');
+          regionDiv.className = 'region';
+  
           counters.forEach(counter => {
-            const counterItem = document.createElement('div')
-            counterItem.className = 'region-counter'
-
-            // 區域內的時間及計數值顯示
+            const counterItem = document.createElement('div');
+            counterItem.className = 'region-counter';
+            counter.max_counter_value
+  
+            // 根據趟數設定背景顏色，如果趟數為 0，設置背景為紅色，否則恢復原本顏色
+            if (counter.counter_value === 0) {
+              counterItem.style.backgroundColor = '#FF9797';  // 設定為紅色
+            } else if(counter.counter_value === counter.max_counter_value){
+              counterItem.style.backgroundColor = '#90EEB3'
+            } else {
+              counterItem.style.backgroundColor = '#f9f9f9';  // 恢復為原本顏色
+            }
+  
             counterItem.innerHTML = `
               <div class="counter-details">
                 <div>時間: ${counter.counter_time}</div>
@@ -194,20 +228,19 @@
                 <button class="increment-btn" data-id="${counter.id}">+</button>
                 <button class="decrement-btn" data-id="${counter.id}">-</button>
               </div>
-            `
-            regionDiv.appendChild(counterItem)
-          })
-
-          regionCounters.appendChild(regionDiv)
+            `;
+            regionDiv.appendChild(counterItem);
+          });
+  
+          regionContainer.appendChild(regionTitle);
+          regionContainer.appendChild(regionDiv);
+          regionCounters.appendChild(regionContainer);
         }
-
-        // 為所有增減按鈕添加事件監聽
+  
         document.querySelectorAll('.increment-btn').forEach(btn => {
           btn.addEventListener('click', () => {
-            const id = btn.getAttribute('data-id')
-
+            const id = btn.getAttribute('data-id');
             const timestamp = new Date();
-
             const formattedTimestamp = new Intl.DateTimeFormat('zh-TW', {
               year: 'numeric',
               month: '2-digit',
@@ -217,16 +250,14 @@
               second: '2-digit',
               hour12: false
             }).format(timestamp).replace(/\//g, '/').replace(',', ' -');
-
-            socket.send(JSON.stringify({userName: userName, type: 'action', action: 'increment', id: id, timestamp: formattedTimestamp }))
-          })
-        })
-
+            socket.send(JSON.stringify({userName: userName, type: 'action', action: 'increment', id: id, timestamp: formattedTimestamp }));
+          });
+        });
+  
         document.querySelectorAll('.decrement-btn').forEach(btn => {
           btn.addEventListener('click', () => {
-            const id = btn.getAttribute('data-id')
+            const id = btn.getAttribute('data-id');
             const timestamp = new Date();
-
             const formattedTimestamp = new Intl.DateTimeFormat('zh-TW', {
               year: 'numeric',
               month: '2-digit',
@@ -236,35 +267,34 @@
               second: '2-digit',
               hour12: false
             }).format(timestamp).replace(/\//g, '/').replace(',', ' -');
-            socket.send(JSON.stringify({userName: userName, type: 'action', action: 'decrement', id: id, timestamp: formattedTimestamp }))
-          })
-        })
+            socket.send(JSON.stringify({userName: userName, type: 'action', action: 'decrement', id: id, timestamp: formattedTimestamp }));
+          });
+        });
       }
-
-      // 推播區域更新
+  
+      // 處理計數器更新推播訊息
       if (data.type === 'counterUpdate') {
         if (data.changedBy) {
-          const notificationItem = document.createElement('li')
-          notificationItem.textContent = `${data.timestamp} - ${data.area} - ${data.counter_time}，當前數量為 ${data.counter}`
-          notificationList.appendChild(notificationItem)
-
-          // 自動滾動到最新訊息，前提是用戶沒有手動滾動
+          
+          const notificationItem = document.createElement('li');
+          notificationItem.textContent = `${data.timestamp.split(' - ')[1].substring(0, 5)} < ${data.changedBy} > - 更新 - ${data.area}/${data.counter_time}趟次為 ${data.counter}`;
+          notificationList.appendChild(notificationItem);
+  
           if (!isUserScrolling) {
-            notificationArea.scrollTop = notificationArea.scrollHeight
+            notificationArea.scrollTop = notificationArea.scrollHeight;
           }
         }
       }
-    }
-
-    // 當 WebSocket 連接關閉時觸發
+    };
+  
     socket.onclose = () => {
-      console.log('WebSocket 連接已關閉')
-    }
-
-    // 當連接出現錯誤時觸發
+      console.log('WebSocket 連接已關閉');
+    };
+  
     socket.onerror = (error) => {
-      console.log('WebSocket 發生錯誤', error)
-    }
+      console.log('WebSocket 發生錯誤', error);
+    };
   </script>
+  
 </body>
 </html>
