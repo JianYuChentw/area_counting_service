@@ -7,8 +7,11 @@ const port = 3000;
 
 const app = express();
 
+app.use(express.json());
+
 // 使用 router
 app.use('/', router);
+
 
 // 建立 HTTP 伺服器並將 Express 應用附加到伺服器
 const server = http.createServer(app);
@@ -19,6 +22,7 @@ setupWebSocket(wss);
 
 // 啟動伺服器
 server.listen(port, () => {
+  console.log(`伺服器運行在 http://localhost:${port}`);
   console.log(`WebSocket 伺服器運行在 ws://localhost:${port}`);
 });
 
@@ -49,9 +53,12 @@ process.on('unhandledRejection', (reason, promise) => {
 // 處理嚴重錯誤
 function handleCriticalError(type, error) {
   console.error(`處理 ${type} 錯誤:`, error);
+  
+  // 根據錯誤類型選擇是否繼續運行或停止服務
   if (type === 'WebSocket' || type === 'HTTP') {
-    console.log(`${type} 錯誤，繼續運行...`);
+    console.log(`${type} 錯誤，伺服器繼續運行...`);
   } else {
-    console.log(`嚴重錯誤發生，請檢查系統`);
+    console.log('嚴重錯誤發生，停止運行...');
+    process.exit(1);  // 停止服務
   }
 }

@@ -35,70 +35,116 @@ async function getRegionCountersByDate(date) {
 }
 
 /**
- * 根據指定的計數器 ID 增加或減少計數器的值，並限制值在 0 到 max_counter_value 之間。
+ * 新增區域名稱到 regions 表。
  * @async
- * @param {number} id - 計數器的唯一識別碼。
- * @param {string} operation - 操作類型，應為 'increment' 或 'decrement'。
- * @returns {Promise<number|boolean>} - 成功時返回更新後的計數器值，失敗時返回 false。
- * @throws {Error} - 如果查詢或更新過程中發生錯誤，將在控制台記錄錯誤。
+ * @function addRegion
+ * @param {string} area - 區域的名稱。
+ * @returns {Promise<Object>} - 返回新增的區域資料（ID 和名稱）。
+ * @throws {Error} - 如果新增過程中發生錯誤，拋出錯誤。
  */
-async function updateCounterValueById(id, operation) {
+async function addRegion(area) {
   let conn;
   try {
     conn = await db.pool.getConnection();
-    
-    // 取得當前的 counter_value 和 max_counter_value
-    const selectQuery = `
-      SELECT counter_value, max_counter_value FROM region_counters WHERE id = ?;
+    const query = `
+      INSERT INTO regions (area)
+      VALUES (?);
     `;
-    
-    const [rows] = await conn.query(selectQuery, [id]);
-    
-    if (rows.length === 0) {
-      console.log('未找到對應的計數器紀錄');
-      return false; // 未找到紀錄時返回 false
-    }
-    
-    let currentValue = rows[0].counter_value;
-    const maxCounterValue = rows[0].max_counter_value;
-
-    // 根據操作類型增減計數器數值並限制最小值為 0 和最大值為 max_counter_value
-    if (operation === 'increment') {
-      if (currentValue >= maxCounterValue) {
-        console.log(`計數器已達最大值: ${maxCounterValue}`);
-        return false; // 當計數器達到最大值時返回 false
-      }
-      currentValue++;
-    } else if (operation === 'decrement') {
-      if (currentValue <= 0) {
-        console.log('計數器已達最小值: 0');
-        return false; // 當計數器達到最小值時返回 false
-      }
-      currentValue--;
-    }
-
-    // 更新資料庫中的 counter_value
-    const updateQuery = `
-      UPDATE region_counters
-      SET counter_value = ?
-      WHERE id = ?;
-    `;
-    
-    await conn.query(updateQuery, [currentValue, id]);
-
-    console.log(`更新計數器成功: ID = ${id}, 計數值 = ${currentValue}`);
-    
-    return currentValue; // 成功更新後返回當前值
-    
+    const [result] = await conn.query(query, [area]);
+    conn.release();
+    return {
+      id: result.insertId,
+      area,
+    };
   } catch (error) {
-    console.error('更新計數器時發生錯誤:', error);
-    return false; // 發生錯誤時返回 false
-  } finally {
-    if (conn) conn.release(); // 釋放連線
+    console.error('新增區域時發生錯誤:', error);
+    if (conn) conn.release();
+    throw error;
   }
 }
 
+
+/**
+ * 刪除指定區域 ID 的資料。
+ * @async
+ * @function deleteRegion
+ * @param {number} id - 區域的 ID。
+ * @returns {Promise<boolean>} - 成功刪除時返回 true，否則返回 false。
+ * @throws {Error} - 如果刪除過程中發生錯誤，拋出錯誤。
+ */
+async function deleteRegion(id) {
+  let conn;
+  try {
+    conn = await db.pool.getConnection();
+    const query = `DELETE FROM regions WHERE id = ?;`;
+    const [result] = await conn.query(query, [id]);
+    conn.release();
+    return result.affectedRows > 0; // 如果有刪除的行數，表示刪除成功
+  } catch (error) {
+    console.error('刪除區域時發生錯誤:', error);
+    if (conn) conn.release();
+    throw error;
+  }
+}
+
+
+/**
+ * 編輯指定區域 ID 的名稱。
+ * @async
+ * @function updateRegion
+ * @param {number} id - 區域的 ID。
+ * @param {string} area - 區域的新名稱。
+ * @returns {Promise<boolean>} - 成功更新時返回 true，否則返回 false。
+ * @throws {Error} - 如果更新過程中發生錯誤，拋出錯誤。
+ */
+async function updateRegion(id, area) {
+  let conn;
+  try {
+    conn = await db.pool.getConnection();
+    const query = `
+      UPDATE regions
+      SET area = ?
+      WHERE id = ?;
+    `;
+    const [result] = await conn.query(query, [area, id]);
+    conn.release();
+    return result.affectedRows > 0; // 如果有更新的行數，表示更新成功
+  } catch (error) {
+    console.error('更新區域名稱時發生錯誤:', error);
+    if (conn) conn.release();
+    throw error;
+  }
+}
+
+
+/**
+ * 確認區域 ID 是否存在於 regions 表中。
+ * @async
+ * @function regionExists
+ * @param {number} id - 區域的 ID。
+ * @returns {Promise<boolean>} - 如果存在返回 true，否則返回 false。
+ * @throws {Error} - 如果查詢過程中發生錯誤，拋出錯誤。
+ */
+async function regionExists(id) {
+  let conn;
+  try {
+    conn = await db.pool.getConnection();
+    const query = `
+      SELECT id FROM regions WHERE id = ?;
+    `;
+    const [rows] = await conn.query(query, [id]);
+    conn.release();
+    return rows.length > 0; // 如果有查詢結果，表示 ID 存在
+  } catch (error) {
+    console.error('查詢區域是否存在時發生錯誤:', error);
+    if (conn) conn.release();
+    throw error;
+  }
+}
+
+
+
+
 module.exports = {
-  getRegionCountersByDate,
-  updateCounterValueById  
+  getRegionCountersByDate, addRegion, deleteRegion, updateRegion, regionExists
 };

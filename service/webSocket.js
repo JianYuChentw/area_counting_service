@@ -1,4 +1,5 @@
-const { getRegionCountersByDate, updateCounterValueById } = require('../model/area');
+const { getRegionCountersByDate, regionExists } = require('../model/area'); // 引入 regionExists 函數
+const { updateCounterValueById } = require('../model/timePeriod');
 const { initCache, updateCache } = require('./socketCache');
 const { formatTimestamp } = require('../utils/utils');
 const WebSocket = require('ws');  // 確保 WebSocket 模組已正確引用
@@ -52,6 +53,18 @@ function setupWebSocket(wss) {
       // 根據客戶端操作進行計數器值的更新
       if (data.type === 'action') {
         const { id, action } = data;
+
+        // 檢查區域 ID 是否存在
+        const exists = await regionExists(id);
+        if (!exists) {
+          ws.send(JSON.stringify({
+            type: 'error',
+            message: `區域 ID ${id} 不存在`,
+            status: 404
+          }));
+          return;
+        }
+
         const regionData = cache['2024-09-01'].find(item => item.id === parseInt(id));
         const { area, counter_time } = regionData;
 
