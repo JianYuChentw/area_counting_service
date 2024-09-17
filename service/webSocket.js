@@ -8,17 +8,27 @@ const clientsInfo = new Map(); // 保存每個客戶端的姓名
 // 初始化快取
 initCache(cache);
 
-// 設置 WebSocket 處理邏輯
+/**
+ * 設置 WebSocket 處理邏輯，處理新連接、訊息和客戶端斷開。
+ * @function setupWebSocket
+ * @param {WebSocket.Server} wss - WebSocket 伺服器對象，負責管理連接的客戶端。
+ */
 function setupWebSocket(wss) {
   wss.on('connection', (ws) => {
     console.log('新客戶端連接');
 
+    /**
+     * 當接收到客戶端訊息時處理邏輯。
+     * @event WebSocket#message
+     * @param {string} message - 來自客戶端的訊息，包含操作類型和數據。
+     */
     ws.on('message', async (message) => {
       const data = JSON.parse(message);
 
+      // 處理客戶端提交姓名的訊息
       if (data.type === 'nameSubmission') {
         clientsInfo.set(ws, data.name);
-        
+
         // 發送快取中的區域數據給客戶端
         const cachedData = cache['2024-09-01'];
         ws.send(JSON.stringify({
@@ -39,13 +49,14 @@ function setupWebSocket(wss) {
         return;
       }
 
+      // 根據客戶端操作進行計數器值的更新
       if (data.type === 'action') {
         const { id, action } = data;
         const regionData = cache['2024-09-01'].find(item => item.id === parseInt(id));
         const { area, counter_time } = regionData;
 
         let updatedCounterValue;
-        // 根據操作類型進行更新並確認是否成功
+        // 根據操作類型增減計數器值
         if (action === 'increment') {
           updatedCounterValue = await updateCounterValueById(id, 'increment');
         } else if (action === 'decrement') {
@@ -90,6 +101,10 @@ function setupWebSocket(wss) {
       }
     });
 
+    /**
+     * 當客戶端斷開連接時清理資料。
+     * @event WebSocket#close
+     */
     ws.on('close', () => {
       console.log('客戶端斷開連接');
       clientsInfo.delete(ws);
