@@ -97,7 +97,7 @@ async function deleteRegion(id) {
  * @returns {Promise<boolean>} - 成功更新時返回 true，否則返回 false。
  * @throws {Error} - 如果更新過程中發生錯誤，拋出錯誤。
  */
-async function updateRegion(id, area) {
+async function updateRegionName(id, area) {
   let conn;
   try {
     conn = await db.pool.getConnection();
@@ -146,5 +146,5 @@ async function regionExists(id) {
 
 
 module.exports = {
-  getRegionCountersByDate, addRegion, deleteRegion, updateRegion, regionExists
+  getRegionCountersByDate, addRegion, deleteRegion, updateRegionName, regionExists
 };

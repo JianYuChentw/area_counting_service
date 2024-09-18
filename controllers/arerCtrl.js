@@ -1,4 +1,4 @@
-const { getRegionCountersByDate, deleteRegion, updateRegion, addRegion, regionExists } = require('../model/area');
+const { getRegionCountersByDate, deleteRegion, updateRegionName, addRegion, regionExists } = require('../model/area');
 
 /**
  * 取得指定日期的區域計數器資料
@@ -33,7 +33,7 @@ async function getRegionCounters(req, res) {
  * @param {Object} res - Express 的回應對象，用來返回結果或錯誤訊息。
  * @returns {Promise<void>} - 當請求完成時，回應對象會返回新增區域結果或錯誤訊息。
  */
-async function addRegionController(req, res) {
+async function addRegionArea(req, res) {
   try {
     const { area } = req.body;
 
@@ -53,12 +53,12 @@ async function addRegionController(req, res) {
 /**
  * 刪除區域
  * @async
- * @function deleteRegionController
+ * @function deleteRegionArea
  * @param {Object} req - Express 的請求對象，包含區域 ID。
  * @param {Object} res - Express 的回應對象，用來返回結果或錯誤訊息。
  * @returns {Promise<void>} - 當請求完成時，回應對象會返回刪除結果或錯誤訊息。
  */
-async function deleteRegionController(req, res) {
+async function deleteRegionArea(req, res) {
   try {
     const { id } = req.params;
 
@@ -81,14 +81,14 @@ async function deleteRegionController(req, res) {
 }
 
 /**
- * 更新區域
+ * 更新區域名稱
  * @async
- * @function updateRegionController
+ * @function updateName
  * @param {Object} req - Express 的請求對象，包含區域 ID 和新名稱。
  * @param {Object} res - Express 的回應對象，用來返回結果或錯誤訊息。
  * @returns {Promise<void>} - 當請求完成時，回應對象會返回更新結果或錯誤訊息。
  */
-async function updateRegionController(req, res) {
+async function updateRegionAreaName(req, res) {
   try {
     const { id } = req.params;
     const { area } = req.body;
@@ -99,7 +99,7 @@ async function updateRegionController(req, res) {
       return res.status(404).json({ message: `區域 ID ${id} 不存在` });
     }
 
-    const updated = await updateRegion(id, area);
+    const updated = await updateRegionName(id, area);
     if (updated) {
       return res.status(200).json({ message: `區域 ID ${id} 的名稱已更新為 ${area}` });
     } else {
@@ -113,7 +113,7 @@ async function updateRegionController(req, res) {
 
 module.exports = {
   getRegionCounters,
-  addRegionController,
-  deleteRegionController,
-  updateRegionController,
+  addRegionArea,
+  deleteRegionArea,
+  updateRegionAreaName
 };
