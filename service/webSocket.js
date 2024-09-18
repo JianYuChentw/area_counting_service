@@ -1,5 +1,5 @@
 const { getRegionCountersByDate, regionExists } = require('../model/area'); // 引入 regionExists 函數
-const { updateCounterValueById, regionCounterExists } = require('../model/timePeriod');
+const { updateAreaCounterValueById, areaRegionCounterExists } = require('../model/areaTimePeriod');
 const { initCache, updateCache } = require('./socketCache');
 const { formatTimestamp } = require('../utils/utils');
 const WebSocket = require('ws');  // 確保 WebSocket 模組已正確引用
@@ -55,7 +55,7 @@ function setupWebSocket(wss) {
         const { id, action } = data;
 
         // 檢查區域 ID 是否存在
-        const exists = await regionCounterExists(id);
+        const exists = await areaRegionCounterExists(id);
         if (!exists) {
           ws.send(JSON.stringify({
             type: 'error',
@@ -71,9 +71,9 @@ function setupWebSocket(wss) {
         let updatedCounterValue;
         // 根據操作類型增減計數器值
         if (action === 'increment') {
-          updatedCounterValue = await updateCounterValueById(id, 'increment');
+          updatedCounterValue = await updateAreaCounterValueById(id, 'increment');
         } else if (action === 'decrement') {
-          updatedCounterValue = await updateCounterValueById(id, 'decrement');
+          updatedCounterValue = await updateAreaCounterValueById(id, 'decrement');
         } else {
           // 如果操作類型無效，回傳錯誤
           ws.send(JSON.stringify({

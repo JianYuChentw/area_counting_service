@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { getRegionCounters, addRegionArea, deleteRegionArea, updateRegionAreaName } = require('../controllers/arerCtrl');
-const { addTimePeriodCounter, deleteTimePeriodCounter, updateTimePeriodCounter } = require('../controllers/timePeriodCtrl');
+const { addAreaTimePeriodCounter, deleteAreaTimePeriodCounter, updateAreaTimePeriodCounter } = require('../controllers/areaTimePeriodCtrl');
 const { validateDate, validateArea, validateId, validateRegionCounter, validate } = require('../utils/validator');
 
 // 區域API
@@ -21,13 +21,13 @@ router.put('/update_region/:id', validateId, validateArea, validate, updateRegio
 // 時段API
 
 // 新增區域時段計數器
-router.post('/add_region_counter', validateRegionCounter, validate, addTimePeriodCounter);
+router.post('/add_region_counter', validateRegionCounter, validate, addAreaTimePeriodCounter);
 
 // 刪除區域時段計數器
-router.delete('/delete_region_counter/:id', validateId, validate, deleteTimePeriodCounter);
+router.delete('/delete_region_counter/:id', validateId, validate, deleteAreaTimePeriodCounter);
 
 // 更新區域時段計數器
-router.put('/update_region_counter/:id', validateId, validateRegionCounter, validate, updateTimePeriodCounter);
+router.put('/update_region_counter/:id', validateId, validateRegionCounter, validate, updateAreaTimePeriodCounter);
 
 
 

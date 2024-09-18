@@ -3,11 +3,11 @@ const db = require('../db/db');
 /**
  * 確認指定區域計數器 ID 是否存在。
  * @async
- * @function regionCounterExists
+ * @function areaRegionCounterExists
  * @param {number} id - 要確認的區域計數器 ID。
  * @returns {Promise<boolean>} - 如果存在返回 true，否則返回 false。
  */
-async function regionCounterExists(id) {
+async function areaRegionCounterExists(id) {
   let conn;
   try {
     conn = await db.pool.getConnection();
@@ -27,7 +27,7 @@ async function regionCounterExists(id) {
 /**
  * 新增區域時段的計數器資料。
  * @async
- * @function addRegionCounter
+ * @function addAreaRegionCounter
  * @param {Object} data - 包含新增區域時段資料的對象。
  * @param {number} data.region_id - 對應區域的 ID。
  * @param {string} data.counter_time - 計數時間區段，格式為 'HH:mm'。
@@ -35,7 +35,7 @@ async function regionCounterExists(id) {
  * @param {number} data.max_counter_value - 該區間的計數最大值。
  * @returns {Promise<Object>} - 返回新增的計數器資料。
  */
-async function addRegionCounter(data) {
+async function addAreaRegionCounter(data) {
   const { region_id, counter_time, date, max_counter_value } = data;
   let conn;
   try {
@@ -64,11 +64,11 @@ async function addRegionCounter(data) {
 /**
  * 刪除指定區域時段的資料。
  * @async
- * @function deleteRegionCounter
+ * @function deleteAreaRegionCounter
  * @param {number} id - 要刪除的區域計數器 ID。
  * @returns {Promise<boolean>} - 成功刪除時返回 true，否則返回 false。
  */
-async function deleteRegionCounter(id) {
+async function deleteAreaRegionCounter(id) {
   let conn;
   try {
     conn = await db.pool.getConnection();
@@ -91,7 +91,7 @@ async function deleteRegionCounter(id) {
  * @returns {Promise<number|boolean>} - 成功時返回更新後的計數器值，失敗時返回 false。
  * @throws {Error} - 如果查詢或更新過程中發生錯誤，將在控制台記錄錯誤。
  */
-async function updateCounterValueById(id, operation) {
+async function updateAreaCounterValueById(id, operation) {
   let conn;
   try {
     conn = await db.pool.getConnection();
@@ -148,7 +148,7 @@ async function updateCounterValueById(id, operation) {
 /**
  * 編輯指定區域時段的資料。
  * @async
- * @function updateRegionCounter
+ * @function updateAreaRegionCounter
  * @param {number} id - 要編輯的區域計數器 ID。
  * @param {Object} data - 包含要更新的區域計數器資料。
  * @param {string} [data.counter_time] - 可選的計數時間區段，格式為 'HH:mm'。
@@ -158,7 +158,7 @@ async function updateCounterValueById(id, operation) {
  * @param {boolean} [data.state] - 可選的區域計數器狀態。
  * @returns {Promise<boolean>} - 成功更新時返回 true，否則返回 false。
  */
-async function updateRegionCounter(id, data) {
+async function updateAreaRegionCounter(id, data) {
   let conn;
   try {
     conn = await db.pool.getConnection();
@@ -213,9 +213,9 @@ async function updateRegionCounter(id, data) {
 
 
 module.exports = {
-  regionCounterExists, 
-  addRegionCounter,
-  deleteRegionCounter,
-  updateCounterValueById,
-  updateRegionCounter
+  areaRegionCounterExists, 
+  addAreaRegionCounter,
+  deleteAreaRegionCounter,
+  updateAreaCounterValueById,
+  updateAreaRegionCounter
 };
