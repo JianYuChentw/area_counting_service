@@ -1,8 +1,10 @@
 const http = require('http');
 const express = require('express');
 const WebSocket = require('ws');
+const cron = require('node-cron');
 const { setupWebSocket } = require('./service/webSocket');
 const router = require('./router/router');
+const { checkAndInsertRegionCounters } = require('./preprocessingScript');
 const port = 3000;
 
 const app = express();
@@ -12,7 +14,6 @@ app.use(express.json());
 // 使用 router
 app.use('/', router);
 
-
 // 建立 HTTP 伺服器並將 Express 應用附加到伺服器
 const server = http.createServer(app);
 
@@ -21,9 +22,20 @@ const wss = new WebSocket.Server({ server });
 setupWebSocket(wss);
 
 // 啟動伺服器
-server.listen(port, () => {
+server.listen(port, async () => {
   console.log(`伺服器運行在 http://localhost:${port}`);
   console.log(`WebSocket 伺服器運行在 ws://localhost:${port}`);
+  
+  // 伺服器首次啟動時，立即檢查並插入當日及未來 10 天的資料
+  console.log('首次啟動時檢查當日及接下來十天的資料...');
+  await checkAndInsertRegionCounters();
+  console.log('首次檢查完成');
+});
+
+// 設定排程，每天00:01執行一次
+cron.schedule('1 0 * * *', () => {
+  console.log('每天 00:01 檢查並插入 region_counters 資料...');
+  checkAndInsertRegionCounters();
 });
 
 // 捕捉 WebSocket 錯誤事件

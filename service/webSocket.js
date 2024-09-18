@@ -3,6 +3,7 @@ const { updateAreaCounterValueById, areaRegionCounterExists } = require('../mode
 const { initCache, updateCache } = require('./socketCache');
 const { formatTimestamp } = require('../utils/utils');
 const WebSocket = require('ws');  // 確保 WebSocket 模組已正確引用
+const { getTaiwanDate } = require('../utils/utils')
 let cache = {};   // 用來儲存快取的區域數據
 const clientsInfo = new Map(); // 保存每個客戶端的姓名
 
@@ -31,7 +32,8 @@ function setupWebSocket(wss) {
         clientsInfo.set(ws, data.name);
 
         // 發送快取中的區域數據給客戶端
-        const cachedData = cache['2024-09-01'];
+        const todayInTaiwan = getTaiwanDate();
+        const cachedData = cache[todayInTaiwan];
         ws.send(JSON.stringify({
           type: 'regionData',
           regionData: cachedData,
@@ -64,8 +66,8 @@ function setupWebSocket(wss) {
           }));
           return;
         }
-
-        const regionData = cache['2024-09-01'].find(item => item.id === parseInt(id));
+        const todayInTaiwan = getTaiwanDate();
+        const regionData = cache[todayInTaiwan].find(item => item.id === parseInt(id));
         const { area, counter_time } = regionData;
 
         let updatedCounterValue;
@@ -86,7 +88,8 @@ function setupWebSocket(wss) {
 
         // 如果更新成功，更新快取並廣播結果
         if (updatedCounterValue !== false) {
-          cache = await updateCache('2024-09-01', cache);
+          const todayInTaiwan = getTaiwanDate();
+          cache = await updateCache(todayInTaiwan, cache);
 
           // 廣播更新結果給所有已連接的客戶端
           wss.clients.forEach(client => {
@@ -98,7 +101,7 @@ function setupWebSocket(wss) {
                 counter: updatedCounterValue,
                 changedBy: userName,
                 timestamp: formatTimestamp(data.timestamp),
-                regionData: cache['2024-09-01'],
+                regionData: cache[todayInTaiwan],
                 status: 200
               }));
             }
