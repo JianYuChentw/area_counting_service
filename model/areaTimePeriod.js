@@ -36,15 +36,15 @@ async function areaRegionCounterExists(id) {
  * @returns {Promise<Object>} - 返回新增的計數器資料。
  */
 async function addAreaRegionCounter(data) {
-  const { region_id, counter_time, date, max_counter_value } = data;
+  const { region_id, counter_time, date, max_counter_value } = data;  
   let conn;
   try {
     conn = await db.pool.getConnection();
     const query = `
-      INSERT INTO region_counters (region_id, counter_time, date, max_counter_value)
-      VALUES (?, ?, ?, ?);
+      INSERT INTO region_counters (region_id, counter_time, date, max_counter_value, counter_value)
+      VALUES (?, ?, ?, ?, ?);
     `;
-    const [result] = await conn.query(query, [region_id, counter_time, date, max_counter_value]);
+    const [result] = await conn.query(query, [region_id, counter_time, date, max_counter_value, max_counter_value]);
     conn.release();
     return {
       id: result.insertId,
@@ -52,7 +52,7 @@ async function addAreaRegionCounter(data) {
       counter_time,
       date,
       max_counter_value,
-      counter_value: 0, // 預設的計數器值
+      counter_value: max_counter_value, // 預設的計數器值
     };
   } catch (error) {
     console.error('新增區域時段資料時發生錯誤:', error);
