@@ -19,13 +19,16 @@ const validateId = [
 ];
 
 /**
- * 區域名稱驗證規則：檢查請求體中的 `area` 是否有效。
+ * 區域名稱與最大計數值驗證規則：檢查請求體中的 `area` 是否有效，`max_count` 可選。
  */
-const validateArea = [
+const validateAreaAndMaxCount = [
   body('area')
     .exists({ checkNull: true, checkFalsy: true }).withMessage('區域名稱是必要的')
     .isString().withMessage('區域名稱必須是字串')
     .isLength({ min: 1 }).withMessage('區域名稱不能為空'),
+  body('max_count')
+    .optional()  // max_count 是選填的
+    .isInt({ min: 0 }).withMessage('最大計數值必須是一個大於或等於 0 的整數'),
 ];
 
 /**
@@ -72,7 +75,7 @@ function validate(req, res, next) {
 module.exports = {
   validateDate,
   validateId,
-  validateArea,
+  validateAreaAndMaxCount,
   validateRegionCounter,
   validate,
 };

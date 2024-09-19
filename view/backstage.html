@@ -1,11 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>區域編輯頁</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    form {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+    }
+    form label {
+      margin-right: 10px;
+    }
+    form input {
+      padding: 5px;
+      margin-right: 10px;
+      flex: 1;
+    }
+    form button {
+      padding: 5px 15px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+    button {
+      cursor: pointer;
+      padding: 5px 10px;
+      border: none;
+      background-color: #28a745;
+      color: white;
+      border-radius: 3px;
+    }
+    button.delete-btn {
+      background-color: #dc3545;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    button:disabled {
+      background-color: #ccc;
+    }
+  </style>
 </head>
 <body>
-    
+
+  <h1>區域編輯頁</h1>
+
+  <!-- 顯示所有區域 -->
+  <h2>所有區域資料</h2>
+  <table id="allRegionsTable" style="display: none;">
+    <thead>
+      <tr>
+        <th>區域名稱</th>
+        <th>最大趟數</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- 新增區域 -->
+  <h2>新增區域</h2>
+  <form id="addRegionForm">
+    <label for="newArea">區域名稱:</label>
+    <input type="text" id="newArea" required>
+    <label for="maxCount">最大趟數:</label>
+    <input type="number" id="maxCount" required>
+    <button type="submit">新增區域</button>
+  </form>
+
+  <script>
+    const baseUrl = 'http://localhost:3000'; // 伺服器基礎 URL
+
+    // 顯示所有區域資料
+    async function fetchAllRegions() {
+      try {
+        const response = await fetch(`${baseUrl}/all_regions`);
+        const regions = await response.json();
+        if (response.ok) {
+          const table = document.getElementById('allRegionsTable');
+          table.style.display = 'table';
+          const tbody = table.querySelector('tbody');
+          tbody.innerHTML = '';
+          regions.forEach(region => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${region.area}</td>
+              <td>${region.max_count}</td>
+              <td>
+                <button onclick="editRegion(${region.id}, '${region.area}', ${region.max_count})">編輯</button>
+                <button class="delete-btn" onclick="deleteRegion(${region.id}, '${region.area}')">刪除</button>
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+        } else {
+          alert('無法取得區域資料');
+        }
+      } catch (error) {
+        console.error('查詢失敗:', error);
+        alert('查詢失敗，請稍後再試');
+      }
+    }
+
+    // 呼叫 API 顯示所有區域資料
+    fetchAllRegions();
+
+    // 檢查輸入是否包含不允許的字符
+    function containsInvalidCharacters(str) {
+      const invalidCharacters = /[\\'"`;]/;
+      return invalidCharacters.test(str);
+    }
+
+    // 新增區域
+    document.getElementById('addRegionForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const area = document.getElementById('newArea').value;
+        let max_count = document.getElementById('maxCount').value;
+
+        // 檢查區域名稱是否包含不允許的字符
+        if (containsInvalidCharacters(area)) {
+          alert('區域名稱不能包含特殊字符，如 \\ , \' , " , ` , ;');
+          return;
+        }
+
+        // 如果 max_count 沒有填寫，設為 undefined 讓後端處理
+        if (max_count === "") {
+            max_count = undefined;
+        }
+
+        try {
+            const response = await fetch(`${baseUrl}/add_region`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ area, max_count }), // 如果 max_count 是 undefined，它不會包含在 JSON 中
+            });
+            const result = await response.json();
+            if (response.ok) {
+                alert(result.message || '區域新增成功');
+                fetchAllRegions(); // 重新加載區域列表
+            } else {
+                alert(result.message || '新增失敗');
+            }
+        } catch (error) {
+            console.error('新增失敗:', error);
+            alert('新增失敗，請稍後再試');
+        }
+    });
+
+    // 更新區域
+    async function updateRegion(id, area, max_count) {
+      try {
+        const response = await fetch(`${baseUrl}/update_region/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ area, max_count }),
+        });
+        const result = await response.json();
+        if (response.ok) {
+          alert(`區域「${area}」更新成功`);
+          fetchAllRegions(); // 重新加載區域列表
+        } else {
+          alert(result.message || '更新失敗');
+        }
+      } catch (error) {
+        console.error('更新失敗:', error);
+        alert('更新失敗，請稍後再試');
+      }
+    }
+
+    // 刪除區域
+    async function deleteRegion(id, area) {
+      if (confirm(`確定要刪除區域「${area}」嗎？`)) {
+        console.log(id, area);
+        
+        try {
+          const response = await fetch(`${baseUrl}/delete_region/${id}`, {
+            method: 'DELETE',
+          });
+          const result = await response.json();
+          if (response.ok) {
+            alert(`區域「${area}」已刪除`);
+            fetchAllRegions(); // 重新加載區域列表
+          } else {
+            alert(result.message || '刪除失敗');
+          }
+        } catch (error) {
+          console.error('刪除失敗:', error);
+          alert('刪除失敗，請稍後再試');
+        }
+      }
+    }
+
+    // 編輯區域
+    function editRegion(id, area, max_count) {
+      const newArea = prompt('請輸入新的區域名稱:', area);
+      const newMaxCount = prompt('請輸入新的最大趟數:', max_count);
+      
+      // 檢查區域名稱是否包含不允許的字符
+      if (newArea !== null && containsInvalidCharacters(newArea)) {
+        alert('區域名稱不能包含特殊字符，如 \\ , \' , " , ` , ;');
+        return;
+      }
+
+      if (newArea !== null && newMaxCount !== null) {
+        updateRegion(id, newArea, newMaxCount);
+      }
+    }
+  </script>
 </body>
 </html>

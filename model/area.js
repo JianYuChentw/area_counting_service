@@ -34,27 +34,61 @@ async function getRegionCountersByDate(date) {
   }
 }
 
+
 /**
- * 新增區域名稱到 regions 表。
+ * 取得所有區域資料的函數
+ * @async
+ * @function getAllRegions
+ * @returns {Promise<Object[]>} - 返回所有區域資料的數組
+ * @throws {Error} - 如果查詢過程中發生錯誤，會拋出錯誤
+ */
+async function getAllRegions() {
+  let conn;
+  try {
+    // 從資料庫連接池取得連線
+    conn = await db.pool.getConnection();
+
+    // 查詢所有 regions 表的資料
+    const query = 'SELECT id, area, max_count, created_at, updated_at FROM regions;';
+    const [rows] = await conn.query(query);  // 查詢並取得結果
+    
+    return rows;  // 返回查詢結果
+
+  } catch (error) {
+    console.error('取得區域資料時發生錯誤:', error);
+    throw error;
+  } finally {
+    if (conn) conn.release();  // 確保釋放資料庫連線
+  }
+}
+
+
+/**
+ * 新增區域名稱到 regions 表，處理特殊字符問題。
  * @async
  * @function addRegion
  * @param {string} area - 區域的名稱。
+ * @param {number} [max_count=3] - 區域的最大計數值，預設為 3。
  * @returns {Promise<Object>} - 返回新增的區域資料（ID 和名稱）。
  * @throws {Error} - 如果新增過程中發生錯誤，拋出錯誤。
  */
-async function addRegion(area) {
+async function addRegion(area, max_count = 3) {
   let conn;
   try {
+    // 處理區域名稱中的特殊字符
+    const sanitizedArea = area.replace(/\\/g, '\\\\').replace(/'/g, "\\'");  // 轉義反斜杠和單引號
+
     conn = await db.pool.getConnection();
     const query = `
-      INSERT INTO regions (area)
-      VALUES (?);
+      INSERT INTO regions (area, max_count)
+      VALUES (?, ?);
     `;
-    const [result] = await conn.query(query, [area]);
+    const [result] = await conn.query(query, [sanitizedArea, max_count]);
     conn.release();
     return {
       id: result.insertId,
-      area,
+      area: sanitizedArea,
+      max_count
     };
   } catch (error) {
     console.error('新增區域時發生錯誤:', error);
@@ -89,32 +123,58 @@ async function deleteRegion(id) {
 
 
 /**
- * 編輯指定區域 ID 的名稱。
+ * 更新指定區域的資料（名稱和最大計數值）。
  * @async
  * @function updateRegion
  * @param {number} id - 區域的 ID。
- * @param {string} area - 區域的新名稱。
+ * @param {Object} data - 包含要更新的區域資料，`area` 為名稱，`max_count` 為最大計數值。
+ * @param {string} [data.area] - 可選的區域新名稱。
+ * @param {number} [data.max_count] - 可選的最大計數值。
  * @returns {Promise<boolean>} - 成功更新時返回 true，否則返回 false。
  * @throws {Error} - 如果更新過程中發生錯誤，拋出錯誤。
  */
-async function updateRegionName(id, area) {
+async function updateRegion(id, data) {
   let conn;
   try {
     conn = await db.pool.getConnection();
+    
+    const fields = [];
+    const values = [];
+    
+    // 根據傳入的資料動態生成 SQL 查詢
+    if (data.area) {
+      fields.push('area = ?');
+      values.push(data.area);
+    }
+    if (typeof data.max_count !== 'undefined') {
+      fields.push('max_count = ?');
+      values.push(data.max_count);
+    }
+
+    // 如果沒有要更新的資料，返回 false
+    if (fields.length === 0) {
+      return false;
+    }
+
     const query = `
       UPDATE regions
-      SET area = ?
+      SET ${fields.join(', ')}
       WHERE id = ?;
     `;
-    const [result] = await conn.query(query, [area, id]);
+
+    values.push(id);  // 把 ID 加到參數中
+    const [result] = await conn.query(query, values);
     conn.release();
-    return result.affectedRows > 0; // 如果有更新的行數，表示更新成功
+    
+    return result.affectedRows > 0;  // 如果有更新的行數，表示更新成功
+
   } catch (error) {
-    console.error('更新區域名稱時發生錯誤:', error);
+    console.error('更新區域資料時發生錯誤:', error);
     if (conn) conn.release();
     throw error;
   }
 }
+
 
 
 /**
@@ -146,5 +206,5 @@ async function regionExists(id) {
 
 
 module.exports = {
-  getRegionCountersByDate, addRegion, deleteRegion, updateRegionName, regionExists
+  getRegionCountersByDate, getAllRegions, addRegion, deleteRegion, updateRegion, regionExists
 };

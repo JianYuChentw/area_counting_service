@@ -1,4 +1,4 @@
-const { getRegionCountersByDate, deleteRegion, updateRegionName, addRegion, regionExists } = require('../model/area');
+const { getRegionCountersByDate, deleteRegion, updateRegion, addRegion, regionExists, getAllRegions } = require('../model/area');
 
 /**
  * 取得指定日期的區域計數器資料
@@ -26,19 +26,41 @@ async function getRegionCounters(req, res) {
 }
 
 /**
+ * 取得所有區域資料
+ * @async
+ * @function getAllRegionAreas
+ * @param {Object} req - Express 的請求對象。
+ * @param {Object} res - Express 的回應對象，用來返回區域資料或錯誤訊息。
+ * @returns {Promise<void>} - 當請求完成時，回應對象會返回所有區域資料或錯誤訊息。
+ */
+async function getAllRegionAreas(req, res) {
+  try {
+    const regions = await getAllRegions();
+    
+    if (!regions || regions.length === 0) {
+      return res.status(404).json({ message: '無法找到任何區域資料' });
+    }
+    res.status(200).json(regions);
+  } catch (error) {
+    console.error('取得所有區域資料時發生錯誤:', error);
+    res.status(500).json({ error: '伺服器發生錯誤，請稍後再試' });
+  }
+}
+
+/**
  * 新增區域
  * @async
- * @function addRegionController
- * @param {Object} req - Express 的請求對象，包含區域名稱。
+ * @function addRegionArea
+ * @param {Object} req - Express 的請求對象，包含區域名稱和最大計數值。
  * @param {Object} res - Express 的回應對象，用來返回結果或錯誤訊息。
  * @returns {Promise<void>} - 當請求完成時，回應對象會返回新增區域結果或錯誤訊息。
  */
 async function addRegionArea(req, res) {
   try {
-    const { area } = req.body;
+    const { area, max_count } = req.body; // 接收區域名稱和最大計數值
 
-    // 呼叫 model 層的 addRegion 函數來新增區域
-    const newRegion = await addRegion(area);
+    // 呼叫 model 層的 addRegion 函數來新增區域，max_count 可以是 undefined，會使用模型層的預設值
+    const newRegion = await addRegion(area, max_count);
 
     res.status(201).json({
       message: `區域 ${area} 已成功新增`,
@@ -81,17 +103,17 @@ async function deleteRegionArea(req, res) {
 }
 
 /**
- * 更新區域名稱
+ * 更新區域名稱及最大計數值
  * @async
- * @function updateName
- * @param {Object} req - Express 的請求對象，包含區域 ID 和新名稱。
+ * @function updateRegionArea
+ * @param {Object} req - Express 的請求對象，包含區域 ID、區域名稱和最大計數值。
  * @param {Object} res - Express 的回應對象，用來返回結果或錯誤訊息。
  * @returns {Promise<void>} - 當請求完成時，回應對象會返回更新結果或錯誤訊息。
  */
-async function updateRegionAreaName(req, res) {
+async function updateRegionArea(req, res) {
   try {
     const { id } = req.params;
-    const { area } = req.body;
+    const { area, max_count } = req.body;
 
     // 確認區域是否存在
     const exists = await regionExists(id);
@@ -99,21 +121,23 @@ async function updateRegionAreaName(req, res) {
       return res.status(404).json({ message: `區域 ID ${id} 不存在` });
     }
 
-    const updated = await updateRegionName(id, area);
+    // 更新區域名稱和最大計數值
+    const updated = await updateRegion(id, { area, max_count });
     if (updated) {
-      return res.status(200).json({ message: `區域 ID ${id} 的名稱已更新為 ${area}` });
+      return res.status(200).json({ message: `區域 ID ${id} 的資料已成功更新` });
     } else {
       return res.status(500).json({ message: '更新區域時發生錯誤' });
     }
   } catch (error) {
-    console.error('更新區域時發生錯誤:', error);
+    console.error('更新區域資料時發生錯誤:', error);
     res.status(500).json({ error: '伺服器發生錯誤，請稍後再試' });
   }
 }
 
 module.exports = {
   getRegionCounters,
+  getAllRegionAreas,
   addRegionArea,
   deleteRegionArea,
-  updateRegionAreaName
+  updateRegionArea
 };

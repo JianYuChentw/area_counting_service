@@ -33,7 +33,7 @@ async function initCache(cache) {
 async function updateCache(date, cache) {
   const regionData = await getRegionCountersByDate(date);
   cache[date] = regionData;
-  console.log('快取更新完成');
+  // console.log('快取更新完成');
   return cache;
 }
 

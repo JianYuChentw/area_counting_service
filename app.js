@@ -6,11 +6,12 @@ const { setupWebSocket } = require('./service/webSocket');
 const router = require('./router/router');
 const { checkAndInsertRegionCounters } = require('./preprocessingScript');
 const port = 3000;
+const cors = require('cors');
 
 const app = express();
 
 app.use(express.json());
-
+app.use(cors());
 // 使用 router
 app.use('/', router);
 
@@ -26,9 +27,9 @@ server.listen(port, async () => {
   console.log(`伺服器運行在 http://localhost:${port}`);
   console.log(`WebSocket 伺服器運行在 ws://localhost:${port}`);
   
-  // 伺服器首次啟動時，立即檢查並插入當日及未來 10 天的資料
-  console.log('首次啟動時檢查當日及接下來十天的資料...');
-  await checkAndInsertRegionCounters();
+  // // 伺服器首次啟動時，立即檢查並插入當日及未來 10 天的資料
+  // console.log('首次啟動時檢查當日及接下來十天的資料...');
+  // await checkAndInsertRegionCounters();
   console.log('首次檢查完成');
 });
 
