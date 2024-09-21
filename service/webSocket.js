@@ -1,11 +1,12 @@
-const { getRegionCountersByDate, regionExists } = require('../model/area'); // 引入 regionExists 函數
+const { getRegionCountersByDate, regionExists } = require('../model/area');
 const { updateAreaCounterValueById, areaRegionCounterExists } = require('../model/areaTimePeriod');
 const { initCache, updateCache } = require('./socketCache');
 const { formatTimestamp } = require('../utils/utils');
-const WebSocket = require('ws');  // 確保 WebSocket 模組已正確引用
-const { getTaiwanDate } = require('../utils/utils')
+const WebSocket = require('ws'); 
+const { getTaiwanDate } = require('../utils/utils');
 let cache = {};   // 用來儲存快取的區域數據
 const clientsInfo = new Map(); // 保存每個客戶端的姓名
+let cacheEnabled = true;  // 開關，決定是否傳遞快取資料
 
 // 初始化快取
 initCache(cache);
@@ -31,14 +32,23 @@ function setupWebSocket(wss) {
       if (data.type === 'nameSubmission') {
         clientsInfo.set(ws, data.name);
 
-        // 發送快取中的區域數據給客戶端
-        const todayInTaiwan = getTaiwanDate();
-        const cachedData = cache[todayInTaiwan];
-        ws.send(JSON.stringify({
-          type: 'regionData',
-          regionData: cachedData,
-          status: 200
-        }));
+        if (cacheEnabled) {
+          // 傳遞快取中的區域數據給客戶端
+          const todayInTaiwan = getTaiwanDate();
+          const cachedData = cache[todayInTaiwan];
+          ws.send(JSON.stringify({
+            type: 'regionData',
+            regionData: cachedData,
+            status: 200
+          }));
+        } else {
+          // 如果快取功能被禁用，返回服務關閉訊息
+          ws.send(JSON.stringify({
+            type: 'serviceClosed',
+            message: '服務目前關閉，正在維護中',
+            status: 503  // HTTP 503 狀態碼代表服務不可用
+          }));
+        }
         return;
       }
 
@@ -54,6 +64,16 @@ function setupWebSocket(wss) {
 
       // 根據客戶端操作進行計數器值的更新
       if (data.type === 'action') {
+        if (!cacheEnabled) {
+          // 如果快取功能被禁用，返回服務關閉訊息
+          ws.send(JSON.stringify({
+            type: 'serviceClosed',
+            message: '服務目前關閉，正在維護中',
+            status: 503  // HTTP 503 狀態碼代表服務不可用
+          }));
+          return;
+        }
+
         const { id, action } = data;
 
         // 檢查區域 ID 是否存在
@@ -128,4 +148,9 @@ function setupWebSocket(wss) {
   });
 }
 
-module.exports = { setupWebSocket };
+// 允許外部設置快取是否啟用的開關
+function setCacheEnabled(enabled) {
+  cacheEnabled = enabled;
+}
+
+module.exports = { setupWebSocket, setCacheEnabled };
