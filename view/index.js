@@ -1,5 +1,6 @@
 // 建立 WebSocket 連接到伺服器
 let socket;
+let checkInterval;
 
 function connectWebSocket() {
   socket = new WebSocket('ws://localhost:3000');
@@ -40,8 +41,7 @@ function connectWebSocket() {
       maintenanceOverlay.style.display = 'flex';  // 顯示維護提示畫面
       return;
     } else {
-      maintenanceOverlay.style.display = 'none';  // 顯示維護提示畫面
-
+      maintenanceOverlay.style.display = 'none';  // 隱藏維護提示畫面
     }
 
     // 如果有 status 欄位並且狀態碼不是 200，則彈出提示框
@@ -52,6 +52,9 @@ function connectWebSocket() {
 
     // 如果是區域數據或計數器更新
     if (data.type === 'regionData' || data.type === 'counterUpdate') {
+      // 保存滾動位置
+      const scrollPosition = regionCounters.scrollTop;
+
       regionCounters.innerHTML = '';
 
       const regionMap = {};
@@ -81,7 +84,7 @@ function connectWebSocket() {
           // 根據趟數設定背景顏色，如果趟數為 0，設置背景為紅色，否則恢復原本顏色
           if (counter.counter_value === 0) {
             counterItem.style.backgroundColor = '#FF9797';  // 設定為紅色
-          } else if(counter.counter_value === counter.max_counter_value){
+          } else if (counter.counter_value === counter.max_counter_value){
             counterItem.style.backgroundColor = '#90EEB3';
           } else {
             counterItem.style.backgroundColor = '#f9f9f9';  // 恢復為原本顏色
@@ -104,6 +107,9 @@ function connectWebSocket() {
         regionContainer.appendChild(regionDiv);
         regionCounters.appendChild(regionContainer);
       }
+
+      // 恢復滾動位置
+      regionCounters.scrollTop = scrollPosition;
 
       document.querySelectorAll('.increment-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -170,5 +176,27 @@ function connectWebSocket() {
   };
 }
 
+
+// 定期檢查快取開關狀態
+async function checkCacheStatus() {
+  try {
+    const response = await fetch('http://localhost:3000/cache_switch');
+    const result = await response.json();
+    const maintenanceOverlay = document.getElementById('maintenanceOverlay');
+    
+    if (response.ok && result.cacheEnabled) {
+      maintenanceOverlay.style.display = 'none';  // 隱藏維護提示
+    } else {
+      maintenanceOverlay.style.display = 'flex';  // 顯示維護提示
+    }
+  } catch (error) {
+    console.error('檢查快取狀態失敗:', error);
+    maintenanceOverlay.style.display = 'flex';  // 發生錯誤時顯示維護提示
+  }
+}
+
 // 初始化 WebSocket 連接
 connectWebSocket();
+
+// 開始定期檢查快取狀態
+checkInterval = setInterval(checkCacheStatus, 3000);  // 每3秒檢查一次

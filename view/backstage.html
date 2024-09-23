@@ -55,11 +55,30 @@
     button:disabled {
       background-color: #ccc;
     }
+    /* 開關按鈕 */
+    .switch-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .switch-label {
+      margin-right: 10px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
 
   <h1>區域編輯頁</h1>
+
+  <!-- 開關控制 -->
+  <div class="switch-container">
+    <span class="switch-label">前台狀態:</span>
+    <label class="switch">
+      <input type="checkbox" id="cacheSwitch">
+      <span>啟用</span>
+    </label>
+  </div>
 
   <!-- 顯示所有區域 -->
   <h2>所有區域資料</h2>
@@ -86,6 +105,51 @@
 
   <script>
     const baseUrl = 'http://localhost:3000'; // 伺服器基礎 URL
+
+    // 取得目前快取開關狀態
+    async function fetchCacheStatus() {
+      try {
+        const response = await fetch(`${baseUrl}/cache_switch`);;
+        
+        const result = await response.json();
+        if (response.ok) {
+          const cacheSwitch = document.getElementById('cacheSwitch');
+          cacheSwitch.checked = result.cacheEnabled;
+        } else {
+          alert('無法取得快取狀態');
+        }
+      } catch (error) {
+        console.error('查詢失敗:', error);
+        alert('查詢失敗，請稍後再試');
+      }
+    }
+
+    // 更新快取開關狀態
+    document.getElementById('cacheSwitch').addEventListener('change', async (e) => {
+      const enabled = e.target.checked;
+      try {
+        const response = await fetch(`${baseUrl}/cache_switch`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ enabled }),
+        });
+        const result = await response.json();
+
+        console.log(result);
+        
+        if (response.ok) {
+          alert(result.message);
+        } else {
+          alert(result.message || '更新失敗');
+        }
+      } catch (error) {
+        console.error('更新失敗:', error);
+        alert('更新失敗，請稍後再試');
+      }
+    });
+
+    // 呼叫 API 取得目前快取開關狀態
+    fetchCacheStatus();
 
     // 顯示所有區域資料
     async function fetchAllRegions() {
@@ -151,9 +215,12 @@
                 body: JSON.stringify({ area, max_count }), // 如果 max_count 是 undefined，它不會包含在 JSON 中
             });
             const result = await response.json();
+
             if (response.ok) {
                 alert(result.message || '區域新增成功');
                 fetchAllRegions(); // 重新加載區域列表
+            } else if (response.status === 503) {
+                alert('服務中，無法進行新增操作。');
             } else {
                 alert(result.message || '新增失敗');
             }
@@ -172,9 +239,12 @@
           body: JSON.stringify({ area, max_count }),
         });
         const result = await response.json();
+
         if (response.ok) {
           alert(`區域「${area}」更新成功`);
           fetchAllRegions(); // 重新加載區域列表
+        } else if (response.status === 503) {
+          alert('服務中，無法進行更新操作。');
         } else {
           alert(result.message || '更新失敗');
         }
@@ -194,9 +264,12 @@
             method: 'DELETE',
           });
           const result = await response.json();
+
           if (response.ok) {
             alert(`區域「${area}」已刪除`);
             fetchAllRegions(); // 重新加載區域列表
+          } else if (response.status === 503) {
+            alert('服務中，無法進行刪除操作。');
           } else {
             alert(result.message || '刪除失敗');
           }

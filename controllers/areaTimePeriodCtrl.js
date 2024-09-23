@@ -1,5 +1,6 @@
 const { addAreaRegionCounter, deleteAreaRegionCounter, updateAreaRegionCounter, areaRegionCounterExists } = require('../model/areaTimePeriod');
 const { regionExists } = require('../model/area');
+const { getCacheStatus } = require('../service/webSocket'); // 引入 getCacheStatus
 
 /**
  * 新增區域時段的計數器資料
@@ -13,6 +14,10 @@ async function addAreaTimePeriodCounter(req, res) {
   try {
     const { region_id, counter_time, date, max_counter_value } = req.body;
 
+    // 確認快取狀態
+  if (getCacheStatus()) {
+    return res.status(503).json({ message: '服務中，無法進行新增操作' });
+  }
     // 確認區域是否存在
     const exists = await regionExists(region_id);
     if (!exists) {
@@ -42,6 +47,10 @@ async function addAreaTimePeriodCounter(req, res) {
 async function deleteAreaTimePeriodCounter(req, res) {
   try {
     const { id } = req.params;
+
+    if (getCacheStatus()) {
+      return res.status(503).json({ message: '服務中，無法進行新增操作' });
+    }
 
     // 確認區域計數器是否存在
     const exists = await areaRegionCounterExists(id);
@@ -74,6 +83,10 @@ async function updateAreaTimePeriodCounter(req, res) {
   try {
     const { id } = req.params;
     const data = req.body;
+
+    if (getCacheStatus()) {
+      return res.status(503).json({ message: '服務中，無法進行新增操作' });
+    }
 
     // 確認區域計數器是否存在
     const exists = await areaRegionCounterExists(id);

@@ -2,7 +2,7 @@ const { getRegionCountersByDate, regionExists } = require('../model/area');
 const { updateAreaCounterValueById, areaRegionCounterExists } = require('../model/areaTimePeriod');
 const { initCache, updateCache } = require('./socketCache');
 const { formatTimestamp } = require('../utils/utils');
-const WebSocket = require('ws'); 
+const WebSocket = require('ws');
 const { getTaiwanDate } = require('../utils/utils');
 
 let cache = {};   // 用來儲存快取的區域數據
@@ -43,11 +43,20 @@ function setupWebSocket(wss) {
         // 傳遞快取中的區域數據給客戶端
         const todayInTaiwan = getTaiwanDate();
         const cachedData = cache[todayInTaiwan];
-        ws.send(JSON.stringify({
-          type: 'regionData',
-          regionData: cachedData,
-          status: 200
-        }));
+
+        if (cachedData) {
+          ws.send(JSON.stringify({
+            type: 'regionData',
+            regionData: cachedData,
+            status: 200
+          }));
+        } else {
+          ws.send(JSON.stringify({
+            type: 'error',
+            message: '目前沒有可用的快取資料',
+            status: 404
+          }));
+        }
         return;
       }
 
@@ -77,20 +86,36 @@ function setupWebSocket(wss) {
         }
         
         const todayInTaiwan = getTaiwanDate();
-        const regionData = cache[todayInTaiwan].find(item => item.id === parseInt(id));
-        const { area, counter_time } = regionData;
+        const regionData = cache[todayInTaiwan];
+
+        if (!regionData) {
+          ws.send(JSON.stringify({
+            type: 'error',
+            message: '目前尚未服務，請稍後再試',
+            status: 404
+          }));
+          return;
+        }
+
+        const targetRegion = regionData.find(item => item.id === parseInt(id));
+        if (!targetRegion) {
+          ws.send(JSON.stringify({
+            type: 'error',
+            message: `無法找到 ID 為 ${id} 的區域數據`,
+            status: 404
+          }));
+          return;
+        }
+
+        const { area, counter_time } = targetRegion;
 
         let updatedCounterValue;
         // 根據操作類型增減計數器值
         if (action === 'increment') {
-
-          // TODO:操作紀錄
-          console.log(data);
-          
+          console.log(data,area);
           updatedCounterValue = await updateAreaCounterValueById(id, 'increment');
         } else if (action === 'decrement') {
-
-          console.log(data);
+          console.log(data,area);
           updatedCounterValue = await updateAreaCounterValueById(id, 'decrement');
         } else {
           // 如果操作類型無效，回傳錯誤

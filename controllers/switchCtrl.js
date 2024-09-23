@@ -23,7 +23,7 @@ const updateCacheSwitchStatus = (req, res) => {
   }
 
   setCacheEnabled(enabled);
-  res.status(200).json({ message: `快取已經${enabled ? '開啟' : '關閉'}。`, cacheEnabled: enabled });
+  res.status(200).json({ message: `服務${enabled ? '開啟' : '關閉'}。`, cacheEnabled: enabled });
 };
 
 module.exports = { getCacheSwitchStatus, updateCacheSwitchStatus };

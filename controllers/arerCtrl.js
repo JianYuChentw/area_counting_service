@@ -1,7 +1,7 @@
 const { getRegionCountersByDate, deleteRegion, updateRegion, addRegion, regionExists, getAllRegions } = require('../model/area');
 const { getAllTimePeriods } = require('../model/timePeriod'); // 查詢所有時間段
 const { addAreaRegionCounter } = require('../model/areaTimePeriod'); // 新增區域的時間段資料
-
+const { getCacheStatus } = require('../service/webSocket'); // 引入 getCacheStatus
 
 /**
  * 取得指定日期的區域計數器資料
@@ -59,12 +59,16 @@ async function getAllRegionAreas(req, res) {
  * @returns {Promise<void>} - 當請求完成時，返回新增區域及其對應時間段的計數資料或錯誤訊息。
  */
 async function addRegionArea(req, res) {
+  // 確認快取狀態
+  if (getCacheStatus()) {
+    return res.status(503).json({ message: '服務中，無法進行新增操作' });
+  }
+
   const { area, max_count } = req.body; // 接收區域名稱和最大計數值
 
   let conn;
   try {
     // 1. 新增區域資料
-    
     const newRegion = await addRegion(area, max_count); // 新增區域，max_count 是可選的
 
     // 2. 查詢所有時間區段
@@ -94,7 +98,6 @@ async function addRegionArea(req, res) {
   }
 }
 
-
 /**
  * 刪除區域
  * @async
@@ -104,6 +107,11 @@ async function addRegionArea(req, res) {
  * @returns {Promise<void>} - 當請求完成時，回應對象會返回刪除結果或錯誤訊息。
  */
 async function deleteRegionArea(req, res) {
+  // 確認快取狀態
+  if (getCacheStatus()) {
+    return res.status(503).json({ message: '服務中，無法進行刪除操作' });
+  }
+
   try {
     const { id } = req.params;
 
@@ -134,6 +142,11 @@ async function deleteRegionArea(req, res) {
  * @returns {Promise<void>} - 當請求完成時，回應對象會返回更新結果或錯誤訊息。
  */
 async function updateRegionArea(req, res) {
+  // 確認快取狀態
+  if (getCacheStatus()) {
+    return res.status(503).json({ message: '服務中，無法進行更新操作' });
+  }
+
   try {
     const { id } = req.params;
     const { area, max_count } = req.body;
