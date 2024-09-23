@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getRegionCounters, addRegionArea, deleteRegionArea, updateRegionArea, getAllRegionAreas } = require('../controllers/arerCtrl');
 const { addAreaTimePeriodCounter, deleteAreaTimePeriodCounter, updateAreaTimePeriodCounter } = require('../controllers/areaTimePeriodCtrl');
+const { getCacheSwitchStatus, updateCacheSwitchStatus } = require('../controllers/switchCtrl');
 const { validateDate, validateAreaAndMaxCount, validateId, validateRegionCounter, validate } = require('../utils/validator'); // 確保所有驗證器正確引入
 
 // 區域API
@@ -31,5 +32,13 @@ router.delete('/delete_region_counter/:id', validateId, validate, deleteAreaTime
 
 // 更新區域時段計數器
 router.put('/update_region_counter/:id', validateId, validateRegionCounter, validate, updateAreaTimePeriodCounter);
+
+// 開關API
+
+// 取得目前的快取開關狀態
+router.get('/cache_switch', getCacheSwitchStatus);
+
+// 更新快取開關狀態
+router.post('/cache_switch', updateCacheSwitchStatus);
 
 module.exports = router;

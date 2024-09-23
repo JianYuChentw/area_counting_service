@@ -127,6 +127,25 @@
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
+
+    /* 維護提示的覆蓋層樣式 */
+    #maintenanceOverlay {
+      display: none; /* 預設為隱藏 */
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      font-size: 24px;
+      text-align: center;
+    }
+
   </style>
 </head>
 <body>
@@ -140,6 +159,14 @@
   <div id="counterArea">
     <h1>即時區域趟數 <span id="currentDate"></span></h1>
     <div id="regionCounters"></div>  <!-- 動態生成各區域的計數器 -->
+  </div>
+
+  <!-- 維護提示的覆蓋層 -->
+  <div id="maintenanceOverlay">
+    <div>
+      <p>服務目前關閉，正在維護中</p>
+      <p>請稍後再試！</p>
+    </div>
   </div>
 
   <script>
