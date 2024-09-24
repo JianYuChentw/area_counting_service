@@ -25,10 +25,19 @@ app.use(session({
 }));
 
 app.use(express.json());
-app.use(cors());
+// 動態設置 CORS
+app.use(cors({
+  origin: (origin, callback) => {
+    // 允許所有來源，但需要具體設置 origin 而不是 '*'
+    callback(null, origin || '*');  // origin 有時候可能為 null，這裡允許所有來源
+  },
+  credentials: true  // 允許攜帶 cookie 或其他憑證
+}));
 
 // 使用 router
 app.use('/', router);
+
+
 
 // 建立 HTTP 伺服器並將 Express 應用附加到伺服器
 const server = http.createServer(app);

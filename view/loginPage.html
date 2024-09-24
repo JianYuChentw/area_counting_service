@@ -29,7 +29,7 @@
     }
 
     .login-container input {
-      width: 100%;
+      width: 90%;
       padding: 10px;
       margin-bottom: 1rem;
       border: 1px solid #ccc;
@@ -68,6 +68,25 @@
   </div>
 
   <script>
+    // 當頁面加載時，檢查用戶是否已經登入
+    const adminPage="http://127.0.0.1:5500/view/areaTimePeriod.html"
+
+    window.addEventListener('load', () => {
+      fetch('http://localhost:3000/checkLogin', {
+        method: 'GET',
+        credentials: 'include'  // 確保 cookie 被傳遞
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.loggedIn) {
+            window.location.href = adminPage;
+        }
+      })
+      .catch(error => {
+        console.error('檢查登入狀態錯誤:', error);
+      });
+    });
+
     document.getElementById('loginBtn').addEventListener('click', () => {
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
@@ -93,15 +112,16 @@
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
+        credentials: 'include'  // 確保 cookie 被傳遞
       })
       .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          alert('登入成功');
-          window.location.href = '/dashboard';  // 登入成功後跳轉至儀表板
+      .then(data => {        
+        if (data.status == 200) {
+            window.location.href = adminPage;  
+          
         } else {
-          errorMessage.textContent = data.message || '登入失敗';
+          errorMessage.textContent = data.message || '登入失敗，請稍後再試。';
         }
       })
       .catch(error => {
