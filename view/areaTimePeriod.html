@@ -123,11 +123,18 @@
       <div class="header">
         <h1>時段趟次管理</h1>
         <select id="dateSelector"></select>
-      </div>
-  
+      </div>  
+        <!-- 開關控制 -->
+    <div class="switch-container">
+        <span class="switch-label">前台狀態:</span>
+        <label class="switch">
+            <input type="checkbox" id="cacheSwitch">
+            <span>啟用</span>
+        </label>
+    </div>
       <!-- 新增區域時段表單 -->
       <div class="add-counter-form">
-        <h3>新增區域時段計數器</h3>
+        <h3>新增區域時段</h3>
         <select id="regionSelect"></select> <!-- 用於選擇區域的下拉選單 -->
         
         <!-- 用 JS 動態生成時間段選擇器 -->
@@ -142,7 +149,8 @@
     </div>
 
     <script src="timeSelect.js"></script>    
-    <script src="timePeriod.js"></script>    
+    <script src="timePeriod.js"></script>
+    <script src="cashSwitch.js"></script>
   </body>
   
 

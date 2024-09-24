@@ -2,16 +2,31 @@ const http = require('http');
 const express = require('express');
 const WebSocket = require('ws');
 const cron = require('node-cron');
+const session = require('express-session');  // 導入 express-session
+const cors = require('cors');
+require('dotenv').config(); // 使用 dotenv 讀取環境變數
+
 const { setupWebSocket } = require('./service/webSocket');
 const router = require('./router/router');
 const { checkAndInsertRegionCounters } = require('./preprocessingScript');
 const port = 3000;
-const cors = require('cors');
 
 const app = express();
 
+// 設置 session 中間件
+app.use(session({
+  secret: process.env.SECRET_KEY, // 這裡設置一個私密的字串，建議使用環境變數存放
+  resave: false,             // 如果 session 沒有修改，則不會強制保存
+  saveUninitialized: true,   // 如果 session 還沒有初始化，則會自動保存未初始化的 session
+  cookie: {
+    secure: false,           // 開發模式下設置為 false，如果是 https，則設置為 true
+    maxAge: 1000 * 60 * 60 * 24 // 設置 cookie 失效時間（以毫秒為單位），這裡設置為 1 天
+  }
+}));
+
 app.use(express.json());
 app.use(cors());
+
 // 使用 router
 app.use('/', router);
 

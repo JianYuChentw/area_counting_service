@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登入頁面</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .login-container {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      width: 300px;
+    }
+
+    .login-container h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .login-container input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .login-container button {
+      width: 100%;
+      padding: 10px;
+      background-color: #5cb85c;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .login-container button:hover {
+      background-color: #4cae4c;
+    }
+
+    .error-message {
+      color: red;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h1>登入</h1>
+    <div class="error-message" id="errorMessage"></div>
+    <input type="text" id="username" placeholder="使用者名稱">
+    <input type="password" id="password" placeholder="密碼">
+    <button id="loginBtn">登入</button>
+  </div>
+
+  <script>
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const errorMessage = document.getElementById('errorMessage');
+
+      // 清除錯誤訊息
+      errorMessage.textContent = '';
+
+      // 基本驗證
+      if (!username || !password) {
+        errorMessage.textContent = '請輸入使用者名稱和密碼';
+        return;
+      }
+
+      const data = {
+        username: username,
+        password: password
+      };
+
+      // 發送登入請求
+      fetch('http://localhost:3000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('登入成功');
+          window.location.href = '/dashboard';  // 登入成功後跳轉至儀表板
+        } else {
+          errorMessage.textContent = data.message || '登入失敗';
+        }
+      })
+      .catch(error => {
+        console.error('登入過程中發生錯誤:', error);
+        errorMessage.textContent = '伺服器錯誤，請稍後再試';
+      });
+    });
+  </script>
+</body>
+</html>

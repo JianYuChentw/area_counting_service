@@ -215,12 +215,61 @@ async function updateAreaRegionCounter(id, data) {
   }
 }
 
+/**
+ * 檢索符合多個條件的 region_counters 資料
+ * @fires conditionsGetRegionCounters
+ * @param {Object} filters - 檢索的條件
+ * @param {number} [filters.regionId] - 區域的 ID (region_id)
+ * @param {string} [filters.date] - 指定的日期，格式為 'YYYY-MM-DD'
+ * @param {string} [filters.counterTime] - 指定的計數時間，格式為 'HH:MM:SS'
+ * @param {number} [filters.state] - 狀態值，1 為啟用，0 為停用
+ * @param {number} [filters.maxCounterValue] - 最大計數值，用來篩選 max_counter_value 小於或等於此值的記錄
+ * @returns {Promise<Array<Object>>} 返回符合條件的 region_counters 資料
+ * @throws {Error} 如果查詢失敗，會拋出錯誤
+ */
+async function conditionsGetRegionCounters({ regionId, date, counterTime, state, maxCounterValue }) {
+  let query = `
+    SELECT * FROM region_counters
+    WHERE 1=1
+  `;
+  const params = [];
 
+  // 加入條件篩選
+  if (regionId) {
+    query += ' AND region_id = ?';
+    params.push(regionId);
+  }
+  
+  if (date) {
+    query += ' AND date = ?';
+    params.push(date);
+  }
+  
+  if (counterTime) {
+    query += ' AND counter_time = ?';
+    params.push(counterTime);
+  }
+
+  if (state !== undefined) {
+    query += ' AND state = ?';
+    params.push(state);
+  }
+  
+  if (maxCounterValue) {
+    query += ' AND max_counter_value <= ?';
+    params.push(maxCounterValue);
+  }
+
+  // 執行查詢
+  const [rows] = await db.pool.query(query, params);
+  return rows;
+}
 
 module.exports = {
   areaRegionCounterExists, 
   addAreaRegionCounter,
   deleteAreaRegionCounter,
   updateAreaCounterValueById,
-  updateAreaRegionCounter
+  updateAreaRegionCounter,
+  conditionsGetRegionCounters
 };

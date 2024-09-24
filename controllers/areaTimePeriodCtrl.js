@@ -1,5 +1,5 @@
-const { addAreaRegionCounter, deleteAreaRegionCounter, updateAreaRegionCounter, areaRegionCounterExists } = require('../model/areaTimePeriod');
-const { regionExists } = require('../model/area');
+const { addAreaRegionCounter, deleteAreaRegionCounter, updateAreaRegionCounter, areaRegionCounterExists,conditionsGetRegionCounters } = require('../model/areaTimePeriod');
+const { regionExists, getRegionCountersByDate } = require('../model/area');
 const { getCacheStatus } = require('../service/webSocket'); // 引入 getCacheStatus
 
 /**
@@ -14,19 +14,36 @@ async function addAreaTimePeriodCounter(req, res) {
   try {
     const { region_id, counter_time, date, max_counter_value } = req.body;
 
-    
     // 確認快取狀態
-  if (getCacheStatus()) {
-    return res.status(503).json({ message: '服務中，無法進行新增操作' });
-  }
+    if (getCacheStatus()) {
+      return res.status(503).json({ message: '服務中，無法進行新增操作' });
+    }
+
     // 確認區域是否存在
     const exists = await regionExists(region_id);
     if (!exists) {
       return res.status(404).json({ message: `區域 ID ${region_id} 不存在` });
     }
 
+    // 確認是否已存在同一時段的計數器
+    const singleDayCounter = await conditionsGetRegionCounters({
+      regionId: region_id,
+      date: date,
+      counterTime: counter_time,
+    });
+
+    if (singleDayCounter.length > 0) {
+      return res.status(409).json({ message: `該時段已存在` }); // 改為 409 衝突狀態碼
+    }
+
     // 新增區域時段資料
-    const newCounter = await addAreaRegionCounter({ region_id, counter_time, date, max_counter_value });
+    const newCounter = await addAreaRegionCounter({
+      region_id,
+      counter_time,
+      date,
+      max_counter_value,
+    });
+
     res.status(201).json({
       message: '區域時段計數器資料已成功新增',
       counter: newCounter,
@@ -36,6 +53,7 @@ async function addAreaTimePeriodCounter(req, res) {
     res.status(500).json({ error: '伺服器發生錯誤，請稍後再試' });
   }
 }
+
 
 /**
  * 刪除區域時段的計數器資料
@@ -130,5 +148,5 @@ async function updateAreaTimePeriodCounter(req, res) {
 module.exports = {
   addAreaTimePeriodCounter,
   deleteAreaTimePeriodCounter,
-  updateAreaTimePeriodCounter
+  updateAreaTimePeriodCounter,
 };
