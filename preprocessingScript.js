@@ -9,8 +9,7 @@ function getDatesForNextTenDays() {
   for (let i = 0; i < 10; i++) {
     const futureDate = new Date(today);
     futureDate.setDate(today.getDate() + i);
-    const dateString = futureDate.toISOString().slice(0, 10); // YYYY-MM-DD 格式
-    dates.push(dateString);
+    dates.push(futureDate.toISOString().slice(0, 10)); // YYYY-MM-DD 格式
   }
 
   return dates;
@@ -24,13 +23,11 @@ async function checkAndInsertRegionCounters() {
     
     console.log('已成功連線資料庫，開始檢查 region_counters...');
     
-    // 獲取所有區域
+    // 獲取所有區域與時段
     const [regions] = await conn.query('SELECT * FROM regions');
-    console.log(`獲取到 ${regions.length} 個區域`);
-    
-    // 獲取所有時段
     const [timePeriods] = await conn.query('SELECT * FROM time_periods');
-    console.log(`獲取到 ${timePeriods.length} 個時段`);
+
+    console.log(`獲取到 ${regions.length} 個區域，${timePeriods.length} 個時段`);
 
     // 獲取接下來10天的日期
     const futureDates = getDatesForNextTenDays();
@@ -66,9 +63,10 @@ async function checkAndInsertRegionCounters() {
     }
     
     console.log('所有資料檢查與插入完成');
-    conn.release();
+    
   } catch (err) {
     console.error('檢查和插入 region_counters 過程中出錯:', err);
+  } finally {
     if (conn) {
       conn.release(); // 確保釋放連線
     }

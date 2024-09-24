@@ -1,22 +1,27 @@
 const db = require('../db/db');
 
 /**
- * 確認指定區域計數器 ID 是否存在。
+ * 獲取指定區域計數器的完整資料，如果不存在則返回 false。
  * @async
  * @function areaRegionCounterExists
  * @param {number} id - 要確認的區域計數器 ID。
- * @returns {Promise<boolean>} - 如果存在返回 true，否則返回 false。
+ * @returns {Promise<Object|boolean>} - 如果存在，返回計數器資料，否則返回 false。
  */
 async function areaRegionCounterExists(id) {
   let conn;
   try {
     conn = await db.pool.getConnection();
-    const query = 'SELECT id FROM region_counters WHERE id = ?;';
+    const query = 'SELECT * FROM region_counters WHERE id = ?;';
     const [rows] = await conn.query(query, [id]);
     conn.release();
-    return rows.length > 0; // 如果存在，返回 true
+
+    if (rows.length > 0) {
+      return rows[0]; // 返回完整的計數器資料
+    } else {
+      return false; // 如果計數器不存在，返回 false
+    }
   } catch (error) {
-    console.error('確認區域計數器是否存在時發生錯誤:', error);
+    console.error('獲取區域計數器資料時發生錯誤:', error);
     if (conn) conn.release();
     throw error;
   }

@@ -1,14 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const { getRegionCounters, addRegionArea, deleteRegionArea, updateRegionArea, getAllRegionAreas } = require('../controllers/arerCtrl');
+const { getRegionCounters, addRegionArea, deleteRegionArea, updateRegionArea, getAllRegionAreas,getSingleDayRegionName } = require('../controllers/arerCtrl');
 const { addAreaTimePeriodCounter, deleteAreaTimePeriodCounter, updateAreaTimePeriodCounter } = require('../controllers/areaTimePeriodCtrl');
 const { getCacheSwitchStatus, updateCacheSwitchStatus } = require('../controllers/switchCtrl');
-const { validateDate, validateAreaAndMaxCount, validateId, validateRegionCounter, validate } = require('../utils/validator'); // 確保所有驗證器正確引入
+const { validateDate, validateAreaAndMaxCount, validateId, validateRegionCounter, validateUpdateCounter, validate } = require('../utils/validator'); // 確保所有驗證器正確引入
 
 // 區域API
 
 // 取得區域計數資料
 router.get('/single_day_area_counter', validateDate, validate, getRegionCounters);
+
+router.get('/single_day_area_name', validateDate, validate, getSingleDayRegionName);
 
 // 取得所有區域資料
 router.get('/all_regions', getAllRegionAreas);  
@@ -31,7 +33,7 @@ router.post('/add_region_counter', validateRegionCounter, validate, addAreaTimeP
 router.delete('/delete_region_counter/:id', validateId, validate, deleteAreaTimePeriodCounter);
 
 // 更新區域時段計數器
-router.put('/update_region_counter/:id', validateId, validateRegionCounter, validate, updateAreaTimePeriodCounter);
+router.put('/update_region_counter/:id', validateUpdateCounter, validate, updateAreaTimePeriodCounter);
 
 // 開關API
 

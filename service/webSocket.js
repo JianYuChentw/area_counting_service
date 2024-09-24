@@ -7,7 +7,7 @@ const { getTaiwanDate } = require('../utils/utils');
 
 let cache = {};   // 用來儲存快取的區域數據
 const clientsInfo = new Map(); // 保存每個客戶端的姓名
-let cacheEnabled = true;  // 開關，決定是否傳遞快取資料
+let cacheEnabled = false;  // 開關，決定是否傳遞快取資料
 
 // 初始化快取
 initCache(cache);

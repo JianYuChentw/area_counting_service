@@ -29,6 +29,62 @@ async function getRegionCounters(req, res) {
 }
 
 /**
+ * 取得指定日期的區域名稱與ID
+ * @async
+ * @function getRegionName
+ * @param {Object} req - Express 請求物件，包含查詢參數 `date`
+ * @param {Object} res - Express 回應物件，用於回傳結果或錯誤訊息
+ * @returns {Promise<void>} - 回傳篩選後的區域 ID 和名稱，若無資料則回傳 404 錯誤
+ * @throws {Error} - 若伺服器發生錯誤，則回傳 500 錯誤
+ */
+async function getSingleDayRegionName(req, res) {
+  try {
+    const date = req.query.date;
+    const counters = await getRegionCountersByDate(date);
+
+    if (!counters || counters.length === 0) {
+      return res.status(404).json({ message: '無法找到對應的區域計數資料' });
+    }
+
+    // 從 counters 過濾重複的 area 名稱
+    const seenAreas = new Set();
+    const areaName = counters
+      .filter(counter => {
+        if (!seenAreas.has(counter.area)) {
+          seenAreas.add(counter.area);
+          return true;
+        }
+        return false;
+      })
+      .map(counter => counter.area);
+
+    // 取得所有區域資料
+    const allRegions = await getAllRegions();
+
+    // 比對所有區域資料與 areaName，篩選出符合的資料
+    const filteredRegions = allRegions
+      .filter(region => areaName.includes(region.area))
+      .map(region => ({
+        id: region.id,
+        area: region.area
+      }));
+
+    if (filteredRegions.length === 0) {
+      return res.status(404).json({ message: '無法找到對應的區域資料' });
+    }
+
+    // 回傳過濾後的區域資料
+    res.status(200).json(filteredRegions);
+
+  } catch (error) {
+    console.error('取得區域計數器資料時發生錯誤:', error);
+    res.status(500).json({ error: '伺服器發生錯誤，請稍後再試' });
+  }
+}
+
+
+
+/**
  * 取得所有區域資料
  * @async
  * @function getAllRegionAreas
@@ -175,5 +231,6 @@ module.exports = {
   getAllRegionAreas,
   addRegionArea,
   deleteRegionArea,
-  updateRegionArea
+  updateRegionArea,
+  getSingleDayRegionName
 };

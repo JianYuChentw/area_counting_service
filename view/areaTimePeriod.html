@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>區域計數器管理</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f4f4f9;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      color: #333;
+    }
+
+    .header select {
+      padding: 5px;
+      font-size: 16px;
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .region-container {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      /* padding: 10px; */
+      height: 400px;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .region-title {
+      width: 100% ;
+      height: 50px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      color: #555;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 5px;
+      margin-bottom: 10px;
+      background-color: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .region-title h2{
+        font-size: 22px;
+    }
+
+    .region-counter {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      background-color: #fff;
+      margin-bottom: 5px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .counter-details {
+      font-size: 16px;
+      color: #333;
+    }
+
+    .counter-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .increment-btn, .decrement-btn, .delete-btn {
+      height: 30px;
+      padding: 0px 10px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+
+    .increment-btn:hover, .decrement-btn:hover, .delete-btn:hover {
+      background-color: #0056b3;
+    }
+
+    .add-counter-form {
+      margin-bottom: 20px;
+    }
+
+    .add-counter-form select, .add-counter-form input, .add-counter-form button {
+      padding: 5px;
+      margin: 5px;
+      font-size: 16px;
+    }
+
+  </style>
+</head>
+<body>
+    <div class="container">
+      <div class="header">
+        <h1>時段趟次管理</h1>
+        <select id="dateSelector"></select>
+      </div>
+  
+      <!-- 新增區域時段表單 -->
+      <div class="add-counter-form">
+        <h3>新增區域時段計數器</h3>
+        <select id="regionSelect"></select> <!-- 用於選擇區域的下拉選單 -->
+        
+        <!-- 用 JS 動態生成時間段選擇器 -->
+        <label for="counterTime">選擇時間段</label>
+        <select id="counterTime"></select>
+        
+        <input type="number" id="maxCounterValue" placeholder="最大計數值">
+        <button id="addCounterBtn">新增</button>
+      </div>
+  
+      <div id="regionCounters" class="grid-container"></div>
+    </div>
+
+    <script src="timeSelect.js"></script>    
+    <script src="timePeriod.js"></script>    
+  </body>
+  
+
+</html>

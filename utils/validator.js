@@ -49,6 +49,19 @@ const validateRegionCounter = [
     .isInt({ min: 0 }).withMessage('最大計數值必須是一個大於或等於 0 的整數'),
 ];
 
+
+/**
+ * 驗證更新計數器操作的規則：檢查請求體中的 operation 是否有效，檢查 ID 是否為整數。
+ */
+const validateUpdateCounter = [
+  param('id')
+    .exists().withMessage('ID 是必要的')
+    .isInt().withMessage('ID 必須是一個有效的整數'),
+  body('operation')
+    .exists().withMessage('操作類型是必要的')
+    .isIn(['increment', 'decrement']).withMessage('操作類型必須是 "increment" 或 "decrement"'),
+];
+
 /**
  * 驗證請求中的參數，並處理驗證錯誤。如果有錯誤，返回 400 錯誤狀態碼和錯誤訊息。
  * @function validate
@@ -77,5 +90,6 @@ module.exports = {
   validateId,
   validateAreaAndMaxCount,
   validateRegionCounter,
+  validateUpdateCounter,
   validate,
 };
