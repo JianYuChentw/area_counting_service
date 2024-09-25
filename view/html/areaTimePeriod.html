@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>區域計數器管理</title>
+  <link rel="stylesheet" href="../style/areaTimePeriod.css">
+</head>
+
+<body>
+  <div class="container">
+    <div class="button-container">
+      <button id="areaManagementBtn">區域管理</button>
+      <button id="logoutBtn">登出</button>
+    </div>
+    <div class="header">
+      <h1>時段趟次管理</h1>
+      <select id="dateSelector"></select>
+    </div>
+    <!-- 開關控制 -->
+    <div class="switch-container">
+      <span class="switch-label">前台狀態:</span>
+      <label class="switch">
+        <input type="checkbox" id="cacheSwitch">
+        <span>啟用</span>
+      </label>
+    </div>
+    <!-- 新增區域時段表單 -->
+    <div class="add-counter-form">
+      <h3>新增區域時段</h3>
+      <select id="regionSelect"></select> <!-- 用於選擇區域的下拉選單 -->
+
+      <!-- 用 JS 動態生成時間段選擇器 -->
+      <label for="counterTime">選擇時間段</label>
+      <select id="counterTime"></select>
+
+      <input type="number" id="maxCounterValue" placeholder="最大計數值">
+      <button id="addCounterBtn">新增</button>
+    </div>
+
+    <div id="regionCounters" class="grid-container"></div>
+  </div>
+  <script src="../js/checkLogin.js"></script>
+  <script src="../js/timeSelect.js"></script>
+  <script src="../js/timePeriod.js"></script>
+  <script src="../js/cashSwitch.js"></script>
+  <script src="../js/logout.js"></script>
+
+</body>
+
+
+</html>

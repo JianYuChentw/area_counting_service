@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登入頁面</title>
+  <link rel="stylesheet" href="../style/loginPage.css">
+</head>
+<body>
+  <div class="login-container">
+    <h1>登入</h1>
+    <div class="error-message" id="errorMessage"></div>
+    
+    <!-- 把輸入欄位和按鈕放入 form 標籤內，並添加 autocomplete -->
+    <form id="loginForm">
+      <input type="text" id="username" name="username" placeholder="使用者名稱" autocomplete="username" required>
+      <input type="password" id="password" name="password" placeholder="密碼" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn">登入</button>
+    </form>
+  </div>
+
+  <script src="../js/login.js"></script>
+</body>
+</html>

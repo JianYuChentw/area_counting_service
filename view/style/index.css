@@ -1,0 +1,140 @@
+html {
+  width: 99vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 5px;
+}
+body {
+  width: 90vw;
+  font-family: Arial, sans-serif;
+  margin: 0 10px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#newMessage {
+  margin-left: 10px;
+}
+
+#notificationArea {
+  width: 50%;
+  height: 200px;
+  overflow-y: auto;
+  padding: 15px;
+  background-color: #f0f0f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+#counterArea {
+  width: 100%;
+  padding: 20px 10px;
+  background-color: #f0f0f0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  flex-grow: 1;
+}
+
+#regionCounters {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.region-container {
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.region-title {
+  text-align: center;
+  height: 50px;
+  top: 0;
+  background-color: #fff;
+  padding: 10px;
+  font-size: 1rem;
+  border-bottom: 2px solid #ccc;
+}
+
+.region {
+  height: 500px;
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+.region-counter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+}
+
+.counter-details {
+  display: flex;
+  gap: 20px;
+}
+
+.counter-controls {
+  display: flex;
+  gap: 10px;
+}
+
+button {
+  padding: 5px 10px;
+  border: none;
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button.decrement-btn {
+  background-color: #f44336;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  margin-bottom: 10px;
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 維護提示的覆蓋層樣式 */
+#maintenanceOverlay {
+  display: none; /* 預設為隱藏 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  font-size: 24px;
+  text-align: center;
+}

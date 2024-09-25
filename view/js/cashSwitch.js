@@ -1,4 +1,4 @@
-const baseUrl = 'http://localhost:3000'; // 伺服器基礎 URL
+const cashBaseUrl = 'http://localhost:3100'; // 伺服器基礎 URL
 
 // 呼叫 API 取得目前快取開關狀態
 fetchCacheStatus();
@@ -6,7 +6,7 @@ fetchCacheStatus();
 // 取得目前快取開關狀態
 async function fetchCacheStatus() {
   try {
-    const response = await fetch(`${baseUrl}/cache_switch`);;
+    const response = await fetch(`${cashBaseUrl}/cache_switch`);;
     
     const result = await response.json();
     if (response.ok) {
@@ -25,7 +25,7 @@ async function fetchCacheStatus() {
 document.getElementById('cacheSwitch').addEventListener('change', async (e) => {
   const enabled = e.target.checked;
   try {
-    const response = await fetch(`${baseUrl}/cache_switch`, {
+    const response = await fetch(`${cashBaseUrl}/cache_switch`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ enabled }),

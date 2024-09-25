@@ -1,12 +1,14 @@
 window.addEventListener('load', () => {
-    fetch('http://localhost:3000/checkLogin', {
+    fetch('http://localhost:3100/checkLogin', {
       method: 'GET',
       credentials: 'include'  // 確保 cookie 被傳遞
     })
     .then(response => response.json())
     .then(data => {
+      console.log(data);
+      
       if (!data.loggedIn) {
-          window.location.href = "http://127.0.0.1:5500/view/loginPage.html";
+          window.location.href = "./loginPage.html";
       }
     })
     .catch(error => {

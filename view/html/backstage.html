@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>區域編輯頁</title>
+  <link rel="stylesheet" href="../style/backstage.css">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -68,9 +69,11 @@
   </style>
 </head>
 <body>
-
+  <div class="button-container">
+    <button id="timePeriodTripsManagementBtn">時段趟次管理</button>
+    <button id="logoutBtn">登出</button>
+  </div>
   <h1>區域編輯頁</h1>
-
   <!-- 開關控制 -->
   <div class="switch-container">
     <span class="switch-label">前台狀態:</span>
@@ -103,9 +106,10 @@
     <button type="submit">新增區域</button>
   </form>
 
-  <script src="backstage.js"></script>
-  <script src="cashSwitch.js"></script>
-  <script src="checkLogin.js"></script>
-  
+  <script src="../js/backstage.js"></script>
+  <script src="../js/cashSwitch.js"></script>
+  <script src="../js/logout.js"></script>
+  <script src="../js/checkLogin.js"></script>
+
 </body>
 </html>

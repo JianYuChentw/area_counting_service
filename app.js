@@ -9,7 +9,7 @@ require('dotenv').config(); // 使用 dotenv 讀取環境變數
 const { setupWebSocket } = require('./service/webSocket');
 const router = require('./router/router');
 const { checkAndInsertRegionCounters } = require('./preprocessingScript');
-const port = 3000;
+const port = 3100;
 
 const app = express();
 

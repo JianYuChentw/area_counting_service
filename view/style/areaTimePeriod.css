@@ -1,0 +1,165 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f4f4f9;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .button-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+
+  }
+
+  #areaManagementBtn {
+    background: linear-gradient(45deg, #4a90e2, #56ccf2);  /* 藍色漸變 */
+    border: none;
+    border-radius: 10px;
+    color: white;
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: background 0.4s, box-shadow 0.3s ease, transform 0.3s ease;
+  }
+
+  /* 懸停效果 */
+  #areaManagementBtn:hover {
+    background: linear-gradient(45deg, #56ccf2, #4a90e2);  /* 懸停時顏色調整 */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    transform: translateY(-3px);
+  }
+
+
+  #logoutBtn {
+    background: linear-gradient(45deg, #ff6b6b, #f06595);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: background 0.4s, box-shadow 0.3s ease, transform 0.3s ease;
+  }
+
+  /* 懸停效果 */
+  #logoutBtn:hover {
+    background: linear-gradient(45deg, #f06595, #ff6b6b);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    transform: translateY(-3px);
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .header h1 {
+    font-size: 28px;
+    color: #333;
+  }
+
+  .header select {
+    padding: 5px;
+    font-size: 16px;
+  }
+
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+
+  .region-container {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    /* padding: 10px; */
+    height: 400px;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  .region-title {
+    width: 100%;
+    height: 50px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    color: #555;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+    background-color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  .region-title h2 {
+    font-size: 22px;
+  }
+
+  .region-counter {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #fff;
+    margin-bottom: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+
+  .counter-details {
+    font-size: 16px;
+    color: #333;
+  }
+
+  .counter-controls {
+    display: flex;
+    gap: 10px;
+  }
+
+  .increment-btn,
+  .decrement-btn,
+  .delete-btn {
+    height: 30px;
+    padding: 0px 10px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: background-color 0.3s;
+  }
+
+  .increment-btn:hover,
+  .decrement-btn:hover,
+  .delete-btn:hover {
+    background-color: #0056b3;
+  }
+
+  .add-counter-form {
+    margin-bottom: 20px;
+  }
+
+  .add-counter-form select,
+  .add-counter-form input,
+  .add-counter-form button {
+    padding: 5px;
+    margin: 5px;
+    font-size: 16px;
+  }

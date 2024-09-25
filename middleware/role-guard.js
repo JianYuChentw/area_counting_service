@@ -5,9 +5,8 @@
  */
 function roleGuard(role) {
   return (req, res, next) => {
-    console.log(req.session[role]);
     
-    const uid = req.session[role];
+    const uid = req.session[role];    
 
     // 如果 session 中沒有對應的角色 ID，則返回 401 錯誤（未授權）
     if (!uid) {
@@ -21,3 +20,4 @@ function roleGuard(role) {
 }
 
 module.exports = roleGuard;
+// http://127.0.0.1:5500/view/html/areaTimePeriod.html

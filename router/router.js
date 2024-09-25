@@ -16,6 +16,7 @@ router.get('/single_day_area_counter', validateDate, validate, getRegionCounters
 router.get('/single_day_area_name', validateDate, validate, getSingleDayRegionName);
 
 // 取得所有區域資料
+// router.get('/all_regions', getAllRegionAreas);  
 router.get('/all_regions',roleGuard('admin'), getAllRegionAreas);  
 
 // 新增區域
@@ -46,13 +47,13 @@ router.get('/cache_switch', getCacheSwitchStatus);
 // 更新快取開關狀態
 router.post('/cache_switch', updateCacheSwitchStatus);
 
-// 登入路由
+// 登入
 router.post('/login', authController.login);
 
-// 註冊路由
+// 註冊
 router.post('/register', authController.register);
 
-// 登出路由
+// 登出
 router.post('/logout', authController.logout);
 
 
