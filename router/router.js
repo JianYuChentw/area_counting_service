@@ -16,8 +16,8 @@ router.get('/single_day_area_counter', validateDate, validate, getRegionCounters
 router.get('/single_day_area_name', validateDate, validate, getSingleDayRegionName);
 
 // 取得所有區域資料
-// router.get('/all_regions', getAllRegionAreas);  
-router.get('/all_regions',roleGuard('admin'), getAllRegionAreas);  
+router.get('/all_regions', getAllRegionAreas);  
+// router.get('/all_regions',roleGuard('admin'), getAllRegionAreas);  
 
 // 新增區域
 router.post('/add_region', validateAreaAndMaxCount, validate, addRegionArea);

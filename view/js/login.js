@@ -2,7 +2,8 @@
 const adminPage = "./areaTimePeriod.html";
 
 window.addEventListener('load', () => {
-  fetch('http://localhost:3100/checkLogin', {
+//   fetch('http://localhost:3100/checkLogin', {
+  fetch('http://3.27.140.23:8090/checkLogin', {
     method: 'GET',
     credentials: 'include'  // 確保 Session Cookie 被傳遞
   })
@@ -49,7 +50,8 @@ document.getElementById('loginForm').addEventListener('submit', (event) => {
   };
 
   // 發送登入請求
-  fetch('http://localhost:3100/login', {
+//   fetch('http://localhost:3100/login', {
+  fetch('http://3.27.140.23/api2/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

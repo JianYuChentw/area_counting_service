@@ -1,5 +1,6 @@
 window.addEventListener('load', () => {
-    fetch('http://localhost:3100/checkLogin', {
+    // fetch('http://localhost:3100/checkLogin', {
+    fetch('http://3.27.140.23/api2/checkLogin', {
       method: 'GET',
       credentials: 'include'  // 確保 cookie 被傳遞
     })

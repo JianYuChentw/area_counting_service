@@ -1,5 +1,7 @@
 
-    const baseUrl = 'http://localhost:3100'; // 伺服器基礎 URL
+    // const baseUrl = 'http://localhost:3100'; // 伺服器基礎 URL
+
+    const baseUrl = 'http://3.27.140.23/api2'; // 修改為雲端伺服器基礎 URL
 
 
     document.getElementById('timePeriodTripsManagementBtn').addEventListener('click', function() {
@@ -48,41 +50,45 @@
 
     // 新增區域
     document.getElementById('addRegionForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const area = document.getElementById('newArea').value;
-        let max_count = document.getElementById('maxCount').value;
+      e.preventDefault();
+      const area = document.getElementById('newArea').value;
+      let max_count = document.getElementById('maxCount').value;
 
-        // 檢查區域名稱是否包含不允許的字符
-        if (containsInvalidCharacters(area)) {
+      // 檢查區域名稱是否包含不允許的字符
+      if (containsInvalidCharacters(area)) {
           alert('區域名稱不能包含特殊字符，如 \\ , \' , " , ` , ;');
           return;
-        }
+      }
 
-        // 如果 max_count 沒有填寫，設為 undefined 讓後端處理
-        if (max_count === "") {
-            max_count = undefined;
-        }
+      // 如果 max_count 沒有填寫，設為 undefined 讓後端處理
+      if (max_count === "") {
+          max_count = undefined;
+      }
 
-        try {
-            const response = await fetch(`${baseUrl}/add_region`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ area, max_count }), // 如果 max_count 是 undefined，它不會包含在 JSON 中
-            });
-            const result = await response.json();
+      // 取得台北時間的日期 (格式: YYYY-MM-DD)
+      const taipeiDate = new Date().toLocaleString("en-US", { timeZone: "Asia/Taipei" });
+      const formattedDate = new Date(taipeiDate).toISOString().split('T')[0]; // YYYY-MM-DD 格式
 
-            if (response.ok) {
-                alert(result.message || '區域新增成功');
-                fetchAllRegions(); // 重新加載區域列表
-            } else if (response.status === 503) {
-                alert('服務中，無法進行新增操作。');
-            } else {
-                alert(result.message || '新增失敗');
-            }
-        } catch (error) {
-            console.error('新增失敗:', error);
-            alert('新增失敗，請稍後再試');
-        }
+      try {
+          const response = await fetch(`${baseUrl}/add_region`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ area, max_count, date: formattedDate }), // 傳遞台北日期
+          });
+          const result = await response.json();
+
+          if (response.ok) {
+              alert(result.message || '區域新增成功');
+              fetchAllRegions(); // 重新加載區域列表
+          } else if (response.status === 503) {
+              alert('服務中，無法進行新增操作。');
+          } else {
+              alert(result.message || '新增失敗');
+          }
+      } catch (error) {
+          console.error('新增失敗:', error);
+          alert('新增失敗，請稍後再試');
+      }
     });
 
     // 更新區域

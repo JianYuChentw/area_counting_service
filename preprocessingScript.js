@@ -1,7 +1,7 @@
 const { pool } = require('./db/db');  // 引入資料庫連線池
 const cron = require('node-cron');
 
-// 獲取當天日期與未來10天的日期
+// 獲取當天日期與未來10天的日期（台北時間）
 function getDatesForNextTenDays() {
   const dates = [];
   const today = new Date();
@@ -9,16 +9,56 @@ function getDatesForNextTenDays() {
   for (let i = 0; i < 10; i++) {
     const futureDate = new Date(today);
     futureDate.setDate(today.getDate() + i);
-    dates.push(futureDate.toISOString().slice(0, 10)); // YYYY-MM-DD 格式
+    
+    // 將時間調整為台北時間 (UTC+8)
+    const taipeiDate = new Date(futureDate.toLocaleString("en-US", { timeZone: "Asia/Taipei" }));
+    dates.push(taipeiDate.toISOString().slice(0, 10)); // YYYY-MM-DD 格式
   }
 
   return dates;
 }
 
-// 檢查並插入 region_counters 資料
+// 刪除三天前的 region_counters 資料（以台北時間計算）
+async function deleteOldRegionCounters() {
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    
+    console.log('開始刪除三天前的 region_counters 資料...');
+
+    // 計算三天前的台北時間日期
+    const today = new Date();
+    const threeDaysAgo = new Date(today);
+    threeDaysAgo.setDate(today.getDate() - 3);
+    
+    // 將時間調整為台北時間 (UTC+8)
+    const taipeiCutoffDate = new Date(threeDaysAgo.toLocaleString("en-US", { timeZone: "Asia/Taipei" }));
+    const cutoffDate = taipeiCutoffDate.toISOString().slice(0, 10); // YYYY-MM-DD 格式
+
+    // 刪除三天前的資料
+    const [result] = await conn.query(
+      'DELETE FROM region_counters WHERE date < ?',
+      [cutoffDate]
+    );
+
+    console.log(`已刪除 ${result.affectedRows} 條三天前的資料`);
+    
+  } catch (err) {
+    console.error('刪除 region_counters 資料過程中出錯:', err);
+  } finally {
+    if (conn) {
+      conn.release(); // 確保釋放連線
+    }
+  }
+}
+
+// 檢查並插入 region_counters 資料（以台北時間計算）
 async function checkAndInsertRegionCounters() {
   let conn;
   try {
+    // 刪除三天前的資料
+    await deleteOldRegionCounters();
+
     conn = await pool.getConnection();
     
     console.log('已成功連線資料庫，開始檢查 region_counters...');
@@ -29,7 +69,7 @@ async function checkAndInsertRegionCounters() {
 
     console.log(`獲取到 ${regions.length} 個區域，${timePeriods.length} 個時段`);
 
-    // 獲取接下來10天的日期
+    // 獲取接下來10天的日期（台北時間）
     const futureDates = getDatesForNextTenDays();
     console.log('未來 10 天日期範圍:', futureDates.join(', '));
 
@@ -74,5 +114,5 @@ async function checkAndInsertRegionCounters() {
 }
 
 module.exports = {
-    checkAndInsertRegionCounters
+  checkAndInsertRegionCounters
 }

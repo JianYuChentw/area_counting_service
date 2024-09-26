@@ -3,7 +3,8 @@ let socket;
 let checkInterval;
 
 function connectWebSocket() {
-  socket = new WebSocket('ws://localhost:3100');
+  // socket = new WebSocket('ws://localhost:3100');
+  socket = new WebSocket('ws://3.27.140.23/ws/');
 
   const regionCounters = document.getElementById('regionCounters');
   const notificationList = document.getElementById('notificationList');
@@ -180,7 +181,8 @@ function connectWebSocket() {
 // 定期檢查快取開關狀態
 async function checkCacheStatus() {
   try {
-    const response = await fetch('http://localhost:3100/cache_switch');
+    // const response = await fetch('http://localhost:3100/cache_switch');
+    const response = await fetch('http://3.27.140.23/api2/cache_switch');
     const result = await response.json();
     const maintenanceOverlay = document.getElementById('maintenanceOverlay');
     

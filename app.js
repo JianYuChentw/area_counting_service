@@ -35,7 +35,7 @@ app.use(cors({
 }));
 
 // 使用 router
-app.use('/', router);
+app.use('/api2', router);
 
 
 

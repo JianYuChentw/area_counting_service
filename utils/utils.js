@@ -25,6 +25,26 @@ function formatTimestamp(timestamp) {
     
     return `${year}-${month}-${day}`;
   }
+
+  /**
+ * 基於傳入的起始日期獲取未來10天的日期
+ * @param {string} startDate - 起始日期，格式為 YYYY-MM-DD
+ * @returns {Array<string>} - 返回日期陣列，格式為 YYYY-MM-DD
+ */
+function getDatesForNextTenDaysFrom(startDate) {
+  const dates = [];
+  const today = new Date(startDate); // 基於傳入的起始日期
   
-  module.exports = { formatTimestamp, getTaiwanDate };
+  // 包含當日和未來10天
+  for (let i = 0; i <= 10; i++) {
+    const futureDate = new Date(today);
+    futureDate.setDate(today.getDate() + i);
+    const formattedDate = futureDate.toISOString().split('T')[0]; // 格式化為 YYYY-MM-DD
+    dates.push(formattedDate);
+  }
+
+  return dates;
+}
+  
+  module.exports = { formatTimestamp, getTaiwanDate, getDatesForNextTenDaysFrom };
   
