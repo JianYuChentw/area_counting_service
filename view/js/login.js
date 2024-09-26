@@ -3,7 +3,7 @@ const adminPage = "./areaTimePeriod.html";
 
 window.addEventListener('load', () => {
 //   fetch('http://localhost:3100/checkLogin', {
-  fetch('http://3.27.140.23:8090/checkLogin', {
+  fetch('http://3.27.140.23:8090/api2/checkLogin', {
     method: 'GET',
     credentials: 'include'  // 確保 Session Cookie 被傳遞
   })

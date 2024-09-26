@@ -7,7 +7,7 @@ document.getElementById('logoutBtn').addEventListener('click', function() {
     })
     .then(response => response.json())
     .then(data => {
-      if (data.message === '已成功登出') {
+      if (data.message === '登出成功') {
         // 登出成功，跳轉到登出後的頁面
         window.location.href = './loginPage.html';  // 登出後跳轉的目標頁面
       } else {

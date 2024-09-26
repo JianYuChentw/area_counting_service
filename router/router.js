@@ -11,41 +11,40 @@ const { validateDate, validateAreaAndMaxCount, validateId, validateRegionCounter
 
 
 // 取得區域計數資料
-router.get('/single_day_area_counter', validateDate, validate, getRegionCounters);
+router.get('/single_day_area_counter',roleGuard('admin'), validateDate, validate, getRegionCounters);
 
-router.get('/single_day_area_name', validateDate, validate, getSingleDayRegionName);
+router.get('/single_day_area_name',roleGuard('admin'), validateDate, validate, getSingleDayRegionName);
 
 // 取得所有區域資料
-router.get('/all_regions', getAllRegionAreas);  
-// router.get('/all_regions',roleGuard('admin'), getAllRegionAreas);  
+router.get('/all_regions',roleGuard('admin'), getAllRegionAreas);  
 
 // 新增區域
-router.post('/add_region', validateAreaAndMaxCount, validate, addRegionArea);
+router.post('/add_region', roleGuard('admin'), validateAreaAndMaxCount, validate, addRegionArea);
 
 // 刪除區域
-router.delete('/delete_region/:id', validateId, validate, deleteRegionArea);
+router.delete('/delete_region/:id', roleGuard('admin'),  validateId, validate, deleteRegionArea);
 
 // 更新區域名稱及最大計數值
-router.put('/update_region/:id', validateId, validateAreaAndMaxCount, validate, updateRegionArea);
+router.put('/update_region/:id' ,roleGuard('admin') , validateId, validateAreaAndMaxCount, validate, updateRegionArea);
 
 // 時段API
 
 // 新增區域時段計數器
-router.post('/add_region_counter', validateRegionCounter, validate, addAreaTimePeriodCounter);
+router.post('/add_region_counter',roleGuard('admin'), validateRegionCounter, validate, addAreaTimePeriodCounter);
 
 // 刪除區域時段計數器
-router.delete('/delete_region_counter/:id', validateId, validate, deleteAreaTimePeriodCounter);
+router.delete('/delete_region_counter/:id',roleGuard('admin'), validateId, validate, deleteAreaTimePeriodCounter);
 
 // 更新區域時段計數器
-router.put('/update_region_counter/:id', validateUpdateCounter, validate, updateAreaTimePeriodCounter);
+router.put('/update_region_counter/:id',roleGuard('admin'), validateUpdateCounter, validate, updateAreaTimePeriodCounter);
 
 // 開關API
 
 // 取得目前的快取開關狀態
-router.get('/cache_switch', getCacheSwitchStatus);
+router.get('/cache_switch',roleGuard('admin'), getCacheSwitchStatus);
 
 // 更新快取開關狀態
-router.post('/cache_switch', updateCacheSwitchStatus);
+router.post('/cache_switch',roleGuard('admin'), updateCacheSwitchStatus);
 
 // 登入
 router.post('/login', authController.login);
