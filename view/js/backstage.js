@@ -1,11 +1,15 @@
 
-    // const baseUrl = 'http://localhost:3100'; // 伺服器基礎 URL
+    // const baseUrl = 'http://localhost:3100/api2'; // 伺服器基礎 URL
 
     const baseUrl = 'http://3.27.140.23/api2'; // 修改為雲端伺服器基礎 URL
 
 
     document.getElementById('timePeriodTripsManagementBtn').addEventListener('click', function() {
       window.location.href = './areaTimePeriod.html';  // 目標頁面
+    });
+
+    document.getElementById('recordsBtn').addEventListener('click', function() {
+      window.location.href = './recordsPage.html';  // 目標頁面
     });
 
     // 顯示所有區域資料

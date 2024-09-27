@@ -2,9 +2,15 @@
 let socket;
 let checkInterval;
 
+// const sockUrl = 'ws://localhost:3100'; // 伺服器socket URL
+const sockUrl = 'ws://3.27.140.23/ws/'; // 修改為雲端伺服器socket URL
+
+// const baseUrl = 'http://localhost:3100/api2'; // 伺服器基礎 URL
+const baseUrl = 'http://3.27.140.23/api2'; // 修改為雲端伺服器基礎 URL
+
+
 function connectWebSocket() {
-  // socket = new WebSocket('ws://localhost:3100');
-  socket = new WebSocket('ws://3.27.140.23/ws/');
+  socket = new WebSocket(sockUrl);
 
   const regionCounters = document.getElementById('regionCounters');
   const notificationList = document.getElementById('notificationList');
@@ -181,13 +187,14 @@ function connectWebSocket() {
 // 定期檢查快取開關狀態
 async function checkCacheStatus() {
   try {
-    // const response = await fetch('http://localhost:3100/cache_switch');
-    const response = await fetch('http://3.27.140.23/api2/cache_switch');
+    const response = await fetch(`${baseUrl}/cache_switch`);
     const result = await response.json();
     const maintenanceOverlay = document.getElementById('maintenanceOverlay');
     
     if (response.ok && result.cacheEnabled) {
       maintenanceOverlay.style.display = 'none';  // 隱藏維護提示
+
+      
     } else {
       maintenanceOverlay.style.display = 'flex';  // 顯示維護提示
     }

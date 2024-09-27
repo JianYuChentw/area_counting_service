@@ -1,6 +1,7 @@
 document.getElementById('logoutBtn').addEventListener('click', function() {
     // 發送登出請求
-    // fetch('http://localhost:3100/logout', {
+    
+    // fetch('http://localhost:3100/api2/logout', {
     fetch('http://3.27.140.23/api2/logout', {
       method: 'POST',
       credentials: 'include',  // 確保 Session Cookie 被傳遞

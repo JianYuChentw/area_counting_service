@@ -2,35 +2,44 @@ body {
   font-family: Arial, sans-serif;
   padding: 20px;
 }
+
 form {
   margin-bottom: 20px;
   display: flex;
   align-items: center;
 }
+
 form label {
   margin-right: 10px;
 }
+
 form input {
   padding: 5px;
   margin-right: 10px;
   flex: 1;
 }
+
 form button {
   padding: 5px 15px;
 }
+
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
 }
-th, td {
+
+th,
+td {
   border: 1px solid #ccc;
   padding: 10px;
   text-align: left;
 }
+
 th {
   background-color: #f4f4f4;
 }
+
 button {
   cursor: pointer;
   padding: 5px 10px;
@@ -39,72 +48,100 @@ button {
   color: white;
   border-radius: 3px;
 }
+
 button.delete-btn {
   background-color: #dc3545;
 }
+
 button:hover {
   opacity: 0.9;
 }
+
 button:disabled {
   background-color: #ccc;
 }
+
 /* 開關按鈕 */
 .switch-container {
   display: flex;
   align-items: center;
   margin-bottom: 20px;
 }
+
 .switch-label {
   margin-right: 10px;
   font-weight: bold;
 }
 
 .button-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
 
-  }
+}
 
-  #timePeriodTripsManagementBtn {
-    background: linear-gradient(45deg, #4a90e2, #56ccf2);  /* 藍色漸變 */
-    border: none;
-    border-radius: 10px;
-    color: white;
-    padding: 15px 30px;
-    font-size: 18px;
-    font-weight: bold;
-    text-transform: uppercase;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: background 0.4s, box-shadow 0.3s ease, transform 0.3s ease;
-  }
+#timePeriodTripsManagementBtn {
+  background: linear-gradient(45deg, #4a90e2, #56ccf2);
+  /* 藍色漸變 */
+  border: none;
+  border-radius: 10px;
+  color: white;
+  padding: 15px 30px;
+  font-size: 18px;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: background 0.4s, box-shadow 0.3s ease, transform 0.3s ease;
+}
 
-  /* 懸停效果 */
-  #timePeriodTripsManagementBtn:hover {
-    background: linear-gradient(45deg, #56ccf2, #4a90e2);  /* 懸停時顏色調整 */
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    transform: translateY(-3px);
-  }
+/* 懸停效果 */
+#timePeriodTripsManagementBtn:hover {
+  background: linear-gradient(45deg, #56ccf2, #4a90e2);
+  /* 懸停時顏色調整 */
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  transform: translateY(-3px);
+}
+
+#recordsBtn {
+  background: linear-gradient(45deg, #4a90e2, #56ccf2);  /* 藍色漸變 */
+  border: none;
+  border-radius: 10px;
+  color: white;
+  padding: 15px 30px;
+  font-size: 18px;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: background 0.4s, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+/* 懸停效果 */
+#recordsBtn:hover {
+  background: linear-gradient(45deg, #56ccf2, #4a90e2);  /* 懸停時顏色調整 */
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  transform: translateY(-3px);
+}
 
 
-  #logoutBtn {
-    background: linear-gradient(45deg, #ff6b6b, #f06595);
-    border: none;
-    border-radius: 10px;
-    color: white;
-    padding: 15px 30px;
-    font-size: 18px;
-    font-weight: bold;
-    text-transform: uppercase;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: background 0.4s, box-shadow 0.3s ease, transform 0.3s ease;
-  }
+#logoutBtn {
+  background: linear-gradient(45deg, #ff6b6b, #f06595);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  padding: 15px 30px;
+  font-size: 18px;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: background 0.4s, box-shadow 0.3s ease, transform 0.3s ease;
+}
 
-  /* 懸停效果 */
-  #logoutBtn:hover {
-    background: linear-gradient(45deg, #f06595, #ff6b6b);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    transform: translateY(-3px);
-  }
+/* 懸停效果 */
+#logoutBtn:hover {
+  background: linear-gradient(45deg, #f06595, #ff6b6b);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  transform: translateY(-3px);
+}

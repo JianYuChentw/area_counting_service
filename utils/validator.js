@@ -62,6 +62,40 @@ const validateUpdateCounter = [
     .isIn(['increment', 'decrement']).withMessage('操作類型必須是 "increment" 或 "decrement"'),
 ];
 
+
+
+/**
+ * 驗證新增記錄的請求體。
+ */
+const validateCreateRecord = [
+  body('record_date')
+    .exists().withMessage('記錄日期是必要的')
+    .matches(/^\d{4}-\d{2}-\d{2}$/).withMessage('日期格式無效，應為 YYYY-MM-DD'),
+  body('time_period')
+    .exists().withMessage('時間片是必要的')
+    .isString().withMessage('時間片必須是字串'),
+  body('content')
+    .exists().withMessage('內容是必要的')
+    .isString().withMessage('內容必須是字串')
+];
+
+/**
+ * 驗證查詢參數中的 `startDate`, `endDate`, 和 `timePeriod`
+ * - `startDate` 和 `endDate` 必須是有效的日期，格式為 YYYY-MM-DD
+ * - `timePeriod` 是選填的，但如果存在必須是一個有效的字串
+ */
+const validateGetRecords = [
+  query('startDate')
+    .optional()
+    .matches(/^\d{4}-\d{2}-\d{2}$/).withMessage('開始日期格式無效，應為 YYYY-MM-DD'),
+  query('endDate')
+    .optional()
+    .matches(/^\d{4}-\d{2}-\d{2}$/).withMessage('結束日期格式無效，應為 YYYY-MM-DD'),
+  query('timePeriod')
+    .optional()
+    .isString().withMessage('時間片必須是字串'),
+];
+
 /**
  * 驗證請求中的參數，並處理驗證錯誤。如果有錯誤，返回 400 錯誤狀態碼和錯誤訊息。
  * @function validate
@@ -91,5 +125,7 @@ module.exports = {
   validateAreaAndMaxCount,
   validateRegionCounter,
   validateUpdateCounter,
+  validateCreateRecord,
+  validateGetRecords,
   validate,
 };

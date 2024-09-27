@@ -1,6 +1,14 @@
+// const baseUrl = 'http://localhost:3100/api2'; // 伺服器基礎 URL
+
+const baseUrl = 'http://3.27.140.23/api2'; // 修改為雲端伺服器基礎 URL
+
 // 當按鈕被點擊時，跳轉到目標頁面
 document.getElementById('areaManagementBtn').addEventListener('click', function() {
     window.location.href = './backstage.html';  // 目標頁面
+  });
+
+  document.getElementById('recordsBtn').addEventListener('click', function() {
+    window.location.href = './recordsPage.html';  // 目標頁面
   });
   
 // 獲取當前系統日期並格式化為 YYYY/MM/DD
@@ -31,8 +39,7 @@ function loadRegions() {
   const selectedDate = dateSelector.value; // 取得目前選擇的日期
   const regionSelect = document.getElementById('regionSelect');
 
-  // fetch(`http://localhost:3100/single_day_area_name?date=${selectedDate}`) // 使用帶日期參數的API
-  fetch(`http://3.27.140.23/api2/single_day_area_name?date=${selectedDate}`) // 使用帶日期參數的API
+  fetch(`${baseUrl}/single_day_area_name?date=${selectedDate}`) // 使用帶日期參數的API
     .then(response => response.json())
     .then(regions => {
       // 清空之前的選項
@@ -53,9 +60,7 @@ function loadRegions() {
 
 // 根據選擇的日期從 API 獲取資料並渲染頁面
 function fetchAndRenderData(date) {
-  // const apiUrl = `http://localhost:3100/single_day_area_counter?date=${date}`;
-  const apiUrl = `http://3.27.140.23/api2/single_day_area_counter?date=${date}`;
-  
+  const apiUrl = `${baseUrl}/single_day_area_counter?date=${date}`;
   // 清空舊的渲染內容
   const regionCounters = document.getElementById('regionCounters');
   regionCounters.innerHTML = '';  // 每次先清空區域內容
@@ -158,8 +163,7 @@ document.getElementById('regionCounters').addEventListener('click', (event) => {
 
 // 更新計數器值並提示操作結果
 function updateCounter(id, operation, area, counter_time) {
-  // fetch(`http://localhost:3100/update_region_counter/${id}`, {
-  fetch(`http://3.27.140.23/api2/update_region_counter/${id}`, {
+  fetch(`${baseUrl}/update_region_counter/${id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -176,8 +180,7 @@ function updateCounter(id, operation, area, counter_time) {
 
 // 刪除計數器並提示操作結果
 function deleteCounter(id, area, counter_time) {
-  // fetch(`http://localhost:3100/delete_region_counter/${id}`, {
-  fetch(`http://3.27.140.23/api2/delete_region_counter/${id}`, {
+  fetch(`${baseUrl}/delete_region_counter/${id}`, {
     method: 'DELETE'
   })
     .then(response => {
@@ -212,8 +215,7 @@ document.getElementById('addCounterBtn').addEventListener('click', () => {
       max_counter_value: maxCounterValue
     };
   
-    // fetch('http://localhost:3100/add_region_counter', {
-    fetch('http://3.27.140.23/api2/add_region_counter', {
+    fetch(`${baseUrl}/add_region_counter`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

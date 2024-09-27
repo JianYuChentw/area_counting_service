@@ -1,3 +1,14 @@
+const dayjs = require('dayjs');
+
+/**
+ * 將 'YYYY/MM/DD HH:mm:ss' 格式的時間戳記轉換為 'YYYY-MM-DD'
+ * @param {string} inputTimestamp - 輸入的時間戳記，例如 '2024/09/26 21:28:54'
+ * @returns {string} 轉換為 'YYYY-MM-DD' 格式的日期
+ */
+function formatToDate(inputTimestamp) {
+  return dayjs(inputTimestamp, 'YYYY/MM/DD HH:mm:ss').format('YYYY-MM-DD');
+}
+
 function formatTimestamp(timestamp) {
     const date = new Date(timestamp);
     const year = date.getFullYear();
@@ -46,5 +57,5 @@ function getDatesForNextTenDaysFrom(startDate) {
   return dates;
 }
   
-  module.exports = { formatTimestamp, getTaiwanDate, getDatesForNextTenDaysFrom };
+  module.exports = { formatTimestamp, getTaiwanDate, getDatesForNextTenDaysFrom,formatToDate };
   

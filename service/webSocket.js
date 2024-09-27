@@ -1,9 +1,10 @@
 const { getRegionCountersByDate, regionExists } = require('../model/area');
 const { updateAreaCounterValueById, areaRegionCounterExists } = require('../model/areaTimePeriod');
 const { initCache, updateCache } = require('./socketCache');
-const { formatTimestamp } = require('../utils/utils');
+const{ addRecord, getRecordsByConditions, deleteRecord } = require('../model/operateRecords')
+const { formatTimestamp,formatToDate,getTaiwanDate } = require('../utils/utils');
 const WebSocket = require('ws');
-const { getTaiwanDate } = require('../utils/utils');
+
 
 let cache = {};   // 用來儲存快取的區域數據
 const clientsInfo = new Map(); // 保存每個客戶端的姓名
@@ -112,10 +113,12 @@ function setupWebSocket(wss) {
         let updatedCounterValue;
         // 根據操作類型增減計數器值
         if (action === 'increment') {
-          console.log(data,area);
+          const content = `${data.userName}-增加${area}-${counter_time}`
+          addRecord(formatToDate(data.timestamp), counter_time,content )
           updatedCounterValue = await updateAreaCounterValueById(id, 'increment');
         } else if (action === 'decrement') {
-          console.log(data,area);
+          const content = `${data.userName}-減少${area}-${counter_time}`
+          addRecord(formatToDate(data.timestamp), counter_time,content )
           updatedCounterValue = await updateAreaCounterValueById(id, 'decrement');
         } else {
           // 如果操作類型無效，回傳錯誤

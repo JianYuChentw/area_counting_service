@@ -122,8 +122,8 @@ async function updateAreaTimePeriodCounter(req, res) {
     if (operation === 'increment') {
       maxCounterValue++; // 增加最大計數值
     } else if (operation === 'decrement') {
-      if (maxCounterValue <= 1) {
-        return res.status(400).json({ message: '最大計數值不能小於 1' });
+      if (maxCounterValue < 0) {
+        return res.status(400).json({ message: '最大計數值不能小於 0' });
       }
       maxCounterValue--; // 減少最大計數值
     } else {
@@ -132,6 +132,8 @@ async function updateAreaTimePeriodCounter(req, res) {
 
     // 更新最大計數值
     const updated = await updateAreaRegionCounter(id, { max_counter_value: maxCounterValue });
+    console.log(updated);
+    
     if (updated) {
       return res.status(200).json({ message: `區域時段計數器 ID ${id} 的最大計數值已成功更新`, max_counter_value: maxCounterValue });
     } else {

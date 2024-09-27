@@ -167,7 +167,7 @@ async function updateAreaRegionCounter(id, data) {
   let conn;
   try {
     conn = await db.pool.getConnection();
-    
+
     const fields = [];
     const values = [];
 
@@ -180,11 +180,11 @@ async function updateAreaRegionCounter(id, data) {
       fields.push('date = ?');
       values.push(data.date);
     }
-    if (data.max_counter_value) {
+    if (data.max_counter_value || data.max_counter_value === 0) {
       fields.push('max_counter_value = ?');
       values.push(data.max_counter_value);
     }
-    if (data.counter_value) {
+    if (data.counter_value || data.counter_value === 0) {
       fields.push('counter_value = ?');
       values.push(data.counter_value);
     }
@@ -198,12 +198,34 @@ async function updateAreaRegionCounter(id, data) {
       return false;
     }
 
+    // 查詢當前的 counter_value 和 max_counter_value
+    const [currentData] = await conn.query('SELECT counter_value, max_counter_value FROM region_counters WHERE id = ?', [id]);
+    const currentCounterValue = currentData[0]?.counter_value;
+    const currentMaxCounterValue = currentData[0]?.max_counter_value;
+
+    // 如果更新 max_counter_value，檢查是增加還是減少
+    if (data.max_counter_value || data.max_counter_value === 0) {
+      const deltaMaxCounterValue = data.max_counter_value - currentMaxCounterValue;
+
+      // 如果 max_counter_value 增加，counter_value 也跟著增加同樣的數量
+      if (deltaMaxCounterValue > 0) {
+        fields.push('counter_value = ?');
+        values.push(currentCounterValue+1);
+      }
+
+      // 如果 max_counter_value 減少，且當前的 counter_value 超過新的 max_counter_value，將 counter_value 設為新的 max_counter_value
+      if (deltaMaxCounterValue < 0 && currentCounterValue > data.max_counter_value) {
+        fields.push('counter_value = ?');
+        values.push(data.max_counter_value);
+      }
+    }
+
     const query = `
       UPDATE region_counters
       SET ${fields.join(', ')}
       WHERE id = ?;
     `;
-    
+
     values.push(id);
     const [result] = await conn.query(query, values);
     conn.release();

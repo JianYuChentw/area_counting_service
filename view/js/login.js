@@ -1,9 +1,11 @@
 // 當頁面加載時，檢查用戶是否已經登入
 const adminPage = "./areaTimePeriod.html";
+// const baseUrl = 'http://localhost:3100/api2'; // 伺服器基礎 URL
+
+const baseUrl = 'http://3.27.140.23/api2'; // 修改為雲端伺服器基礎 URL
 
 window.addEventListener('load', () => {
-//   fetch('http://localhost:3100/checkLogin', {
-  fetch('http://3.27.140.23:8090/api2/checkLogin', {
+  fetch(`${baseUrl}/checkLogin`, {
     method: 'GET',
     credentials: 'include'  // 確保 Session Cookie 被傳遞
   })
@@ -15,7 +17,6 @@ window.addEventListener('load', () => {
     }
   })
   .then(data => {
-    console.log(data.loggedIn);
     
     if (data.loggedIn) {
       // 用戶已登入，跳轉到目標頁面
@@ -50,8 +51,7 @@ document.getElementById('loginForm').addEventListener('submit', (event) => {
   };
 
   // 發送登入請求
-//   fetch('http://localhost:3100/login', {
-  fetch('http://3.27.140.23/api2/login', {
+  fetch(`${baseUrl}/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -63,12 +63,15 @@ document.getElementById('loginForm').addEventListener('submit', (event) => {
     if (response.ok) {
       return response.json();
     } else {
+      if (response.status == 401) {
+        errorMessage.textContent = '帳號或密碼錯誤';
+        return;  // 停止後續的處理
+      }
       throw new Error('登入失敗');
     }
   })
   .then(data => {
-    console.log(data.loggedIn);
-    if (data.loggedIn) {
+    if (data && data.loggedIn) {
       // 登入成功，跳轉到目標頁面
       window.location.href = adminPage;
     } else {

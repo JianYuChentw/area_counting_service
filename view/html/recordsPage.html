@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>操作記錄列表</title>
+    <!-- <link rel="stylesheet" href="../style/recordsPage.css"> -->
+    <!-- 服務上的 -->
+    <link rel="stylesheet" href="/project1/style/recordsPage.css">
+</head>
+
+<body>
+    <div class="button-container">
+        <button id="timePeriodTripsManagementBtn">時段趟次管理</button>
+        <button id="areaManagementBtn">區域管理</button>
+        <button id="logoutBtn">登出</button>        
+    </div>
+    <h2>操作記錄列表</h2>
+    <!-- 日期選擇 -->
+    <label for="dateSelect">選擇日期:</label>
+    <select id="dateSelect">
+        <option value="">所有日期</option>
+    </select>
+
+    <!-- 時間下拉選擇 -->
+    <label for="timeSelect">選擇時間:</label>
+    <select id="timeSelect">
+        <option value="">所有時間</option>
+    </select>
+
+    <button id="filterButton">篩選</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>記錄日期</th>
+                <th>時間</th>
+                <th>內容</th>
+            </tr>
+        </thead>
+        <tbody id="recordsTableBody">
+            <!-- 記錄數據將顯示在這裡 -->
+        </tbody>
+    </table>
+    <!-- <script src="../js/recordsPage.js"></script> -->
+    <!-- <script src="../js/logout.js"></script>  -->
+    <!-- <script src="../js/checkLogin.js"></script> -->
+
+
+    <!-- 服務上的 -->
+    <script src="/project1/js/recordsPage.js"></script>
+    <script src="/project1/js/checkLogin.js"></script>
+    <script src="/project1/js/logout.js"></script>
+</body>
+
+</html>

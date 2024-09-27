@@ -1,5 +1,11 @@
 const { pool } = require('./db/db');  // 引入資料庫連線池
 const cron = require('node-cron');
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 // 獲取當天日期與未來10天的日期（台北時間）
 function getDatesForNextTenDays() {
@@ -16,6 +22,34 @@ function getDatesForNextTenDays() {
   }
 
   return dates;
+}
+
+// 刪除7天前的 operate_records 資料（以台北時間計算）
+async function deleteOldOperateRecords() {
+  let conn;
+  try {
+    conn = await pool.getConnection();
+
+    console.log('開始刪除7天前的 operate_records 資料...');
+
+    // 計算7天前的台北時間日期
+    const sevenDaysAgo = dayjs().tz('Asia/Taipei').subtract(7, 'days').format('YYYY-MM-DD');
+
+    // 刪除7天前的資料
+    const [result] = await conn.query(
+      'DELETE FROM operate_records WHERE record_date < ?',
+      [sevenDaysAgo]
+    );
+
+    console.log(`已刪除 ${result.affectedRows} 條7天前的 operate_records 資料`);
+
+  } catch (err) {
+    console.error('刪除 operate_records 資料過程中出錯:', err);
+  } finally {
+    if (conn) {
+      conn.release(); // 確保釋放連線
+    }
+  }
 }
 
 // 刪除三天前的 region_counters 資料（以台北時間計算）
@@ -56,6 +90,9 @@ async function deleteOldRegionCounters() {
 async function checkAndInsertRegionCounters() {
   let conn;
   try {
+    // 刪除台北時間7天前的 operate_records 資料
+    await deleteOldOperateRecords();
+
     // 刪除三天前的資料
     await deleteOldRegionCounters();
 
