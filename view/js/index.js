@@ -102,9 +102,9 @@ function connectWebSocket() {
               <div>時間: ${counter.counter_time}</div>
               <div>趟數: ${counter.counter_value}</div>
             </div>
-            <div class="counter-controls">
-              <button class="increment-btn" data-id="${counter.id}">+</button>
-              <button class="decrement-btn" data-id="${counter.id}">-</button>
+            <div class="btn-group">
+              <button class="btn btn-success" data-id="${counter.id}">+</button>
+              <button class="btn btn-danger" data-id="${counter.id}">-</button>
             </div>
           `;
           regionDiv.appendChild(counterItem);

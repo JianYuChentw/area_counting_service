@@ -4,11 +4,10 @@ FROM node:18
 # 設定工作目錄
 WORKDIR /app
 
-# 複製 package.json 和 package-lock.json
 COPY package*.json ./
 
-# 安裝依賴
-RUN npm install
+# 安裝依賴，這部分通常不會頻繁改動
+RUN npm install --production
 
 # 複製專案的其餘文件
 COPY . .

@@ -85,20 +85,6 @@ body {
   gap: 20px;
 }
 
-.counter-controls {
-  display: flex;
-  gap: 10px;
-}
-
-button {
-  padding: 5px 10px;
-  border: none;
-  background-color: #4CAF50;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
 button.decrement-btn {
   background-color: #f44336;
 }

@@ -5,33 +5,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>操作記錄列表</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <!-- <link rel="stylesheet" href="../style/recordsPage.css"> -->
     <!-- 服務上的 -->
     <link rel="stylesheet" href="/project1/style/recordsPage.css">
 </head>
 
 <body>
-    <div class="button-container">
-        <button id="timePeriodTripsManagementBtn">時段趟次管理</button>
-        <button id="areaManagementBtn">區域管理</button>
-        <button id="logoutBtn">登出</button>        
-    </div>
-    <h2>操作記錄列表</h2>
+    <h1>操作記錄列表</h1>
+
+    <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+        <button class="btn btn-outline-secondary" id="areaManagementBtn">區域管理</button>
+        <button class="btn btn-outline-primary" id="timePeriodTripsManagementBtn">時段趟次管理</button>
+        <button class="btn btn-outline-danger" id="logoutBtn">登出</button>
+      </div>
+
     <!-- 日期選擇 -->
-    <label for="dateSelect">選擇日期:</label>
-    <select id="dateSelect">
-        <option value="">所有日期</option>
-    </select>
+
 
     <!-- 時間下拉選擇 -->
-    <label for="timeSelect">選擇時間:</label>
-    <select id="timeSelect">
-        <option value="">所有時間</option>
-    </select>
+    <div class="dropdown">  
 
-    <button id="filterButton">篩選</button>
+        <label for="dateSelect">選擇日期:</label>
+        <select class="btn btn-outline-dark" id="dateSelect">
+            <option value="">所有日期</option>
+        </select>
+        
+        <label for="timeSelect">選擇時間:</label>
+        <select class="btn btn-outline-dark" id="timeSelect">
+            <option value="">所有時間</option>
+        </select>
 
-    <table>
+        <button class="btn btn-outline-primary" id="filterButton">篩選</button>
+      </div>
+
+
+<div class="table-content">
+    <table class="table">
         <thead>
             <tr>
                 <th>記錄日期</th>
@@ -42,9 +53,12 @@
         <tbody id="recordsTableBody">
             <!-- 記錄數據將顯示在這裡 -->
         </tbody>
-    </table>
-    <!-- <script src="../js/recordsPage.js"></script> -->
-    <!-- <script src="../js/logout.js"></script>  -->
+    </table></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- <script src="../js/recordsPage.js"></script> 
+    <script src="../js/logout.js"></script>  -->
     <!-- <script src="../js/checkLogin.js"></script> -->
 
 

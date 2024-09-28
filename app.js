@@ -52,8 +52,8 @@ server.listen(port, async () => {
   console.log(`WebSocket 伺服器運行在 ws://localhost:${port}`);
   
   // // 伺服器首次啟動時，立即檢查並插入當日及未來 10 天的資料
-  // console.log('首次啟動時檢查當日及接下來十天的資料...');
-  // await checkAndInsertRegionCounters();
+  console.log('首次啟動時檢查當日及接下來十天的資料...');
+  await checkAndInsertRegionCounters();
   console.log('首次檢查完成');
 });
 

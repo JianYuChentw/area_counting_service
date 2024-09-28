@@ -28,8 +28,8 @@
               <td>${region.area}</td>
               <td>${region.max_count}</td>
               <td>
-                <button onclick="editRegion(${region.id}, '${region.area}', ${region.max_count})">編輯</button>
-                <button class="delete-btn" onclick="deleteRegion(${region.id}, '${region.area}')">刪除</button>
+                <button class="btn btn-success"  onclick="editRegion(${region.id}, '${region.area}', ${region.max_count})">編輯</button>
+                <button class="btn btn-danger" onclick="deleteRegion(${region.id}, '${region.area}')">刪除</button>
               </td>
             `;
             tbody.appendChild(row);

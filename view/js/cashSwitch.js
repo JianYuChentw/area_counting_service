@@ -2,18 +2,20 @@
 const cashBaseUrl = 'http://3.27.140.23/api2'; // 修改為雲端伺服器基礎 URL
 
 
-// 呼叫 API 取得目前快取開關狀態
-fetchCacheStatus();
 
 // 取得目前快取開關狀態
 async function fetchCacheStatus() {
   try {
-    const response = await fetch(`${cashBaseUrl}/cache_switch`);;
+    const response = await fetch(`${cashBaseUrl}/cache_switch`);
     
     const result = await response.json();
     if (response.ok) {
       const cacheSwitch = document.getElementById('cacheSwitch');
+      const statusText = document.getElementById('statusText');
+      
+      // 根據取得的狀態來設置開關和狀態文字
       cacheSwitch.checked = result.cacheEnabled;
+      statusText.textContent = result.cacheEnabled ? '啟用' : '停用';
     } else {
       alert('無法取得快取狀態');
     }
@@ -23,9 +25,11 @@ async function fetchCacheStatus() {
   }
 }
 
-// 更新快取開關狀態
+// 更新快取開關狀態並改變文字
 document.getElementById('cacheSwitch').addEventListener('change', async (e) => {
   const enabled = e.target.checked;
+  const statusText = document.getElementById('statusText');
+  
   try {
     const response = await fetch(`${cashBaseUrl}/cache_switch`, {
       method: 'POST',
@@ -35,7 +39,9 @@ document.getElementById('cacheSwitch').addEventListener('change', async (e) => {
     const result = await response.json();
     
     if (response.ok) {
-      alert(result.message);
+      // 更新前台狀態文字
+      statusText.textContent = enabled ? '啟用' : '停用';
+      
     } else {
       alert(result.message || '更新失敗');
     }
@@ -44,3 +50,6 @@ document.getElementById('cacheSwitch').addEventListener('change', async (e) => {
     alert('更新失敗，請稍後再試');
   }
 });
+
+// 初始化時獲取快取狀態
+fetchCacheStatus();

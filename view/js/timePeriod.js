@@ -122,10 +122,10 @@ function fetchAndRenderData(date) {
               <div>時間: ${counter.counter_time}</div>
               <div>最大趟數: ${counter.max_counter_value}</div>
             </div>
-            <div class="counter-controls">
-              <button class="increment-btn" data-id="${counter.id}" data-area="${area}" data-counter_time="${counter.counter_time}">+</button>
-              <button class="decrement-btn" data-id="${counter.id}" data-area="${area}" data-counter_time="${counter.counter_time}">-</button>
-              <button class="delete-btn" data-id="${counter.id}" data-area="${area}" data-counter_time="${counter.counter_time}" >刪除</button>
+            <div class="counter-controls btn-group" role="group" aria-label="Basic mixed styles example">
+              <button class="increment-btn btn btn-success" data-id="${counter.id}" data-area="${area}" data-counter_time="${counter.counter_time}">+</button>
+              <button class="decrement-btn btn btn-warning" data-id="${counter.id}" data-area="${area}" data-counter_time="${counter.counter_time}">-</button>
+              <button class="delete-btn btn btn-danger" data-id="${counter.id}" data-area="${area}" data-counter_time="${counter.counter_time}" >刪除</button>
             </div>
           `;
 

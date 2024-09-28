@@ -1,119 +1,38 @@
-table {
-    width: 100%;
+body {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+
+.btn-group{
+    margin: 20px;
+  }
+
+.dropdown{
+    text-align: center;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
+    
+  }
+
+  .table-content{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+.table {
+    text-align: center;
+    align-items: center;
+    margin: 20px;
+    width: 80%;
     border-collapse: collapse;
 }
 
-table,
-th,
-td {
-    border: 1px solid black;
-}
-
-th,
-td {
-    padding: 10px;
-    text-align: left;
-}
-
-th {
-    background-color: #f2f2f2;
-}
-
-.button-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-
-}
-
-#areaManagementBtn {
-    background: linear-gradient(45deg, #4a90e2, #56ccf2);
-    /* 藍色漸變 */
-    border: none;
-    border-radius: 10px;
-    color: white;
-    padding: 15px 30px;
-    font-size: 18px;
-    font-weight: bold;
-    text-transform: uppercase;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: background 0.4s, box-shadow 0.3s ease, transform 0.3s ease;
-}
-
-/* 懸停效果 */
-#areaManagementBtn:hover {
-    background: linear-gradient(45deg, #56ccf2, #4a90e2);
-    /* 懸停時顏色調整 */
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    transform: translateY(-3px);
-}
 
 
-#recordsBtn {
-    background: linear-gradient(45deg, #4a90e2, #56ccf2);
-    /* 藍色漸變 */
-    border: none;
-    border-radius: 10px;
-    color: white;
-    padding: 15px 30px;
-    font-size: 18px;
-    font-weight: bold;
-    text-transform: uppercase;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: background 0.4s, box-shadow 0.3s ease, transform 0.3s ease;
-}
-
-/* 懸停效果 */
-#recordsBtn:hover {
-    background: linear-gradient(45deg, #56ccf2, #4a90e2);
-    /* 懸停時顏色調整 */
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    transform: translateY(-3px);
-}
-
-#timePeriodTripsManagementBtn {
-    background: linear-gradient(45deg, #4a90e2, #56ccf2);
-    /* 藍色漸變 */
-    border: none;
-    border-radius: 10px;
-    color: white;
-    padding: 15px 30px;
-    font-size: 18px;
-    font-weight: bold;
-    text-transform: uppercase;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: background 0.4s, box-shadow 0.3s ease, transform 0.3s ease;
-}
-
-/* 懸停效果 */
-#timePeriodTripsManagementBtn:hover {
-    background: linear-gradient(45deg, #56ccf2, #4a90e2);
-    /* 懸停時顏色調整 */
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    transform: translateY(-3px);
-}
-
-
-#logoutBtn {
-    background: linear-gradient(45deg, #ff6b6b, #f06595);
-    border: none;
-    border-radius: 10px;
-    color: white;
-    padding: 15px 30px;
-    font-size: 18px;
-    font-weight: bold;
-    text-transform: uppercase;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: background 0.4s, box-shadow 0.3s ease, transform 0.3s ease;
-}
-
-/* 懸停效果 */
-#logoutBtn:hover {
-    background: linear-gradient(45deg, #f06595, #ff6b6b);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    transform: translateY(-3px);
-}
