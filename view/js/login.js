@@ -9,7 +9,7 @@ window.addEventListener('load', () => {
     method: 'GET',
     credentials: 'include'  // 確保 Session Cookie 被傳遞
   })
-  .then(response => {    
+  .then(response => {        
     if (response.ok) {
       return response.json();
     } else {
@@ -59,12 +59,12 @@ document.getElementById('loginForm').addEventListener('submit', (event) => {
     credentials: 'include'  // 確保 Session Cookie 被傳遞
   })
   .then(response => {
+    console.log(response);
     if (response.ok) {
       return response.json();
-    } else {
+    } else {  
       if (response.status === 401) {
-        errorMessage.textContent = '帳號或密碼錯誤';
-        return;  // 停止後續的處理
+        return response.json();
       }
       throw new Error('登入失敗');
     }

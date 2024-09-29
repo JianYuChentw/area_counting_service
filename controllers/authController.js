@@ -11,9 +11,6 @@ async function login(req, res) {
   
     try {
       const user = await userModel.findUserByUsername(username);
-      console.log(user);
-      
-  
       if (!user) {
         return res.status(401).json({ loggedIn:false, message: '帳號或密碼錯誤' });
       }
