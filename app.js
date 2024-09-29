@@ -5,8 +5,7 @@ const cron = require('node-cron');
 const session = require('express-session');  // 導入 express-session
 const cors = require('cors');
 require('dotenv').config(); // 使用 dotenv 讀取環境變數
-
-const { setupWebSocket } = require('./service/webSocket');
+const { setupWebSocket, setCacheEnabled } = require('./service/webSocket');
 const router = require('./router/router');
 const { checkAndInsertRegionCounters } = require('./preprocessingScript');
 const port = 3100;
@@ -60,7 +59,12 @@ server.listen(port, async () => {
 // 設定排程，每天00:01執行一次
 cron.schedule('1 0 * * *', () => {
   console.log('每天 00:01 檢查並插入 region_counters 資料...');
-  checkAndInsertRegionCounters();
+   checkAndInsertRegionCounters();
+});
+
+cron.schedule('10 0 * * *', () => {
+  console.log('每天 00:10 重置快取並啟動服務');
+  setCacheEnabled(true);
 });
 
 // 捕捉 WebSocket 錯誤事件
