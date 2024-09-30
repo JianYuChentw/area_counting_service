@@ -15,13 +15,17 @@ async function addRecord(record_date, time_period, content) {
     VALUES (?, ?, ?)
   `;
   
+  let conn;
   try {
-    const [result] = await db.pool.execute(query, [record_date, time_period, content]);
+    conn = await db.pool.getConnection(); // 獲取連接
+    const [result] = await conn.execute(query, [record_date, time_period, content]);
     console.log('Record added successfully:', result.insertId);
     return result.insertId; // 回傳新增的ID
   } catch (error) {
     console.error('Error adding record:', error);
     throw error;
+  } finally {
+    if (conn) conn.release(); // 釋放連接
   }
 }
 
@@ -54,12 +58,16 @@ async function getRecordsByConditions(startDate, endDate, timePeriod) {
       params.push(timePeriod);
     }
   
+    let conn;
     try {
-      const [rows] = await db.pool.execute(query, params);
+      conn = await db.pool.getConnection(); // 獲取連接
+      const [rows] = await conn.execute(query, params);
       return rows; // 回傳記錄
     } catch (error) {
       console.error('Error fetching records by conditions:', error);
       throw error;
+    } finally {
+      if (conn) conn.release(); // 釋放連接
     }
 }
 
@@ -75,9 +83,11 @@ async function deleteRecord(id) {
       DELETE FROM operate_records
       WHERE id = ?
     `;
-  
+
+    let conn;
     try {
-      const [result] = await db.pool.execute(query, [id]);
+      conn = await db.pool.getConnection(); // 獲取連接
+      const [result] = await conn.execute(query, [id]);
       if (result.affectedRows > 0) {
         console.log('Record deleted successfully:', id);
         return true; // 刪除成功
@@ -88,6 +98,8 @@ async function deleteRecord(id) {
     } catch (error) {
       console.error('Error deleting record:', error);
       throw error;
+    } finally {
+      if (conn) conn.release(); // 釋放連接
     }
 }
 
