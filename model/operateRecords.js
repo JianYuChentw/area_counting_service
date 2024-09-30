@@ -19,7 +19,7 @@ async function addRecord(record_date, time_period, content) {
   try {
     conn = await db.pool.getConnection(); // 獲取連接
     const [result] = await conn.execute(query, [record_date, time_period, content]);
-    console.log('Record added successfully:', result.insertId);
+    // console.log('Record added successfully:', result.insertId);
     return result.insertId; // 回傳新增的ID
   } catch (error) {
     console.error('Error adding record:', error);

@@ -108,17 +108,21 @@ function setupWebSocket(wss) {
           return;
         }
 
-        const { area, counter_time } = targetRegion;
+        const { area, counter_time, counter_value, max_counter_value } = targetRegion;
 
         let updatedCounterValue;
         // 根據操作類型增減計數器值
-        if (action === 'increment') {
-          const content = `${data.userName}-增加${area}-${counter_time}`
-          addRecord(formatToDate(data.timestamp), counter_time,content )
+        if (action === 'increment') {  
+          const content = `${data.timeOnly} < ${data.userName} > - 更新 - ${area}/${counter_time}趟次為 ${counter_value+1}`
+          if (counter_value+1 <= max_counter_value) {
+            addRecord(formatToDate(data.timestamp), counter_time,content )
+          }
           updatedCounterValue = await updateAreaCounterValueById(id, 'increment');
         } else if (action === 'decrement') {
-          const content = `${data.userName}-減少${area}-${counter_time}`
-          addRecord(formatToDate(data.timestamp), counter_time,content )
+          const content = `${data.timeOnly} < ${data.userName} > - 更新 - ${area}/${counter_time}趟次為 ${counter_value-1}`
+          if (counter_value-1  >= 0) {
+            addRecord(formatToDate(data.timestamp), counter_time,content )
+          }
           updatedCounterValue = await updateAreaCounterValueById(id, 'decrement');
         } else {
           // 如果操作類型無效，回傳錯誤

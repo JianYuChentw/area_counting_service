@@ -162,85 +162,103 @@ document.getElementById('regionCounters').addEventListener('click', (event) => {
 });
 
 // 更新計數器值並提示操作結果
-function updateCounter(id, operation, area, counter_time) {
-  fetch(`${baseUrl}/update_region_counter/${id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ operation })
-  })
-    .then(response => response.json())
-    .then(() => {
+async function updateCounter(id, operation, area, counter_time) {
+  try {
+    const response = await fetch(`${baseUrl}/update_region_counter/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ operation })
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
       alert(`區域「${area}/${counter_time}」的計數器已成功 ${operation === 'increment' ? '增加' : '減少'}。`);
-      fetchAndRenderData(dateSelector.value);
-    })
-    .catch(error => console.error('Error updating counter:', error));
+      fetchAndRenderData(dateSelector.value); // 重新加載資料
+    } else if (response.status === 503) {
+      alert('服務中，無法進行操作。');
+    } else {
+      alert(result.message || '操作失敗');
+    }
+  } catch (error) {
+    console.error('更新計數器失敗:', error);
+    alert('更新失敗，請稍後再試');
+  }
 }
+
 
 // 刪除計數器並提示操作結果
-function deleteCounter(id, area, counter_time) {
-  fetch(`${baseUrl}/delete_region_counter/${id}`, {
-    method: 'DELETE'
-  })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`刪除失敗，狀態碼: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then(() => {
+async function deleteCounter(id, area, counter_time) {
+  try {
+    const response = await fetch(`${baseUrl}/delete_region_counter/${id}`, {
+      method: 'DELETE'
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
       alert(`區域「${area}/${counter_time}」的計數器已成功刪除。`);
-      fetchAndRenderData(dateSelector.value);
-    })
-    .catch(error => console.error('刪除計數器過程中發生錯誤:', error));
+      fetchAndRenderData(dateSelector.value); // 重新載入資料
+    } else if (response.status === 503) {
+      alert('服務中，無法進行刪除操作。');
+    } else {
+      alert(result.message || '刪除失敗');
+    }
+  } catch (error) {
+    console.error('刪除計數器過程中發生錯誤:', error);
+    alert('刪除失敗，請稍後再試');
+  }
 }
 
+
 // 新增區域時段計數器
-document.getElementById('addCounterBtn').addEventListener('click', () => {
-    const regionId = document.getElementById('regionSelect').value;
-    const regionName = document.getElementById('regionSelect').selectedOptions[0].textContent; // 取得區域名稱
-    const counterTime = document.getElementById('counterTime').value;
-    const maxCounterValue = document.getElementById('maxCounterValue').value;
-  
-    if (!regionId || !counterTime || !maxCounterValue) {
-      alert('請完整填寫所有欄位');
-      return;
-    }
-  
-    const data = {
-      region_id: regionId,
-      counter_time: counterTime,
-      date: dateSelector.value,
-      max_counter_value: maxCounterValue
-    };
-  
-    fetch(`${baseUrl}/add_region_counter`, {
+document.getElementById('addCounterBtn').addEventListener('click', async () => {
+  const regionId = document.getElementById('regionSelect').value;
+  const regionName = document.getElementById('regionSelect').selectedOptions[0].textContent; // 取得區域名稱
+  const counterTime = document.getElementById('counterTime').value;
+  const maxCounterValue = document.getElementById('maxCounterValue').value;
+
+  if (!regionId || !counterTime || !maxCounterValue) {
+    alert('請完整填寫所有欄位');
+    return;
+  }
+
+  const data = {
+    region_id: regionId,
+    counter_time: counterTime,
+    date: dateSelector.value,
+    max_counter_value: maxCounterValue
+  };
+
+  try {
+    const response = await fetch(`${baseUrl}/add_region_counter`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(data)
-    })
-      .then(response => {
-        if (response.status === 409) {
-          return response.json().then(data => {
-            throw new Error(data.message || '該時段已存在');
-          });
-        } else if (!response.ok) {
-          throw new Error('伺服器錯誤，請稍後再試');
-        }
-        return response.json();
-      })
-      .then(() => {
-        alert(`區域「${regionName}」的計數器已成功新增。`);
-        fetchAndRenderData(dateSelector.value);  // 新增後重新載入數據
-      })
-      .catch(error => {
-        alert(error.message);
-        console.error('Error adding counter:', error);
-      });
-  });
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      alert(`區域「${regionName}」的計數器已成功新增。`);
+      fetchAndRenderData(dateSelector.value);  // 新增後重新載入數據
+    } else if (response.status === 409) {
+      alert(result.message || '該時段已存在');
+    } else if (response.status === 503) {
+      alert('服務中，無法進行新增操作。');
+    } else {
+      alert('伺服器錯誤，請稍後再試');
+    }
+  } catch (error) {
+    console.error('新增計數器過程中發生錯誤:', error);
+    alert(error.message || '新增失敗，請稍後再試');
+  }
+});
+
   
 
 // 初始載入當前日期的資料和區域列表

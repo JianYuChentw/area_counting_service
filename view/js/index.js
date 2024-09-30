@@ -9,6 +9,53 @@ const sockUrl = 'ws://3.27.140.23/ws/'; // 修改為雲端伺服器socket URL
 const baseUrl = 'http://3.27.140.23/api2'; // 修改為雲端伺服器基礎 URL
 
 
+async function fetchDailyNotifications() {
+  try {
+    // 獲取當天的日期，格式為 YYYY-MM-DD
+    const today = new Date();
+    const formattedDate = today.toISOString().split('T')[0]; // 取得 YYYY-MM-DD 格式
+
+    // 使用當天日期作為 startDate 和 endDate
+    const url = `${baseUrl}/records?startDate=${formattedDate}&endDate=${formattedDate}`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+
+    const notifications = await response.json();
+
+    if (response.ok) {
+      const notificationList = document.getElementById('notificationList');
+      notificationList.innerHTML = ''; // 清空現有的通知列表
+
+      notifications.forEach(notification => {
+        
+        const notificationItem = document.createElement('li');
+        // 格式化推播訊息
+        const formattedTime = new Date(notification.record_date).toLocaleTimeString('zh-TW', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        });
+
+        notificationItem.textContent = `${notification.content}`;
+        notificationList.appendChild(notificationItem);
+      });
+
+      // 自動滾動到最底部
+      const notificationArea = document.getElementById('notificationArea');
+      notificationArea.scrollTop = notificationArea.scrollHeight;
+    } else {
+      alert('無法獲取歷史推播訊息');
+    }
+  } catch (error) {
+    console.error('獲取歷史推播訊息時發生錯誤:', error);
+  }
+}
+
 function connectWebSocket() {
   socket = new WebSocket(sockUrl);
 
@@ -34,9 +81,12 @@ function connectWebSocket() {
     userName = prompt('請輸入您的姓名：');
   }
 
-  socket.onopen = () => {
+  socket.onopen = async () => {
     console.log('已連接到 WebSocket 伺服器');
     socket.send(JSON.stringify({ type: 'nameSubmission', name: userName }));
+
+    // 呼叫 API 來獲取當日歷史推播訊息
+    await fetchDailyNotifications();
   };
 
   socket.onmessage = (event) => {
@@ -44,7 +94,6 @@ function connectWebSocket() {
 
     // 檢查服務是否正在維護中
     if (data.type === 'serviceClosed') {
-      // 顯示維護提示覆蓋層
       maintenanceOverlay.style.display = 'flex';  // 顯示維護提示畫面
       return;
     } else {
@@ -122,6 +171,11 @@ function connectWebSocket() {
         btn.addEventListener('click', () => {
           const id = btn.getAttribute('data-id');
           const timestamp = new Date();
+          const timeOnly = timestamp.toLocaleTimeString('zh-TW', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          });
           const formattedTimestamp = new Intl.DateTimeFormat('zh-TW', {
             year: 'numeric',
             month: '2-digit',
@@ -131,7 +185,7 @@ function connectWebSocket() {
             second: '2-digit',
             hour12: false
           }).format(timestamp).replace(/\//g, '/').replace(',', ' -');
-          socket.send(JSON.stringify({ userName: userName, type: 'action', action: 'increment', id: id, timestamp: formattedTimestamp }));
+          socket.send(JSON.stringify({ userName: userName, type: 'action', action: 'increment', id: id, timestamp: formattedTimestamp, timeOnly: timeOnly }));
         });
       });
 
@@ -139,6 +193,11 @@ function connectWebSocket() {
         btn.addEventListener('click', () => {
           const id = btn.getAttribute('data-id');
           const timestamp = new Date();
+          const timeOnly = timestamp.toLocaleTimeString('zh-TW', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          });
           const formattedTimestamp = new Intl.DateTimeFormat('zh-TW', {
             year: 'numeric',
             month: '2-digit',
@@ -148,7 +207,7 @@ function connectWebSocket() {
             second: '2-digit',
             hour12: false
           }).format(timestamp).replace(/\//g, '/').replace(',', ' -');
-          socket.send(JSON.stringify({ userName: userName, type: 'action', action: 'decrement', id: id, timestamp: formattedTimestamp }));
+          socket.send(JSON.stringify({ userName: userName, type: 'action', action: 'decrement', id: id, timestamp: formattedTimestamp, timeOnly: timeOnly }));
         });
       });
     }
@@ -156,7 +215,6 @@ function connectWebSocket() {
     // 處理計數器更新推播訊息
     if (data.type === 'counterUpdate') {
       if (data.changedBy) {
-        
         const notificationItem = document.createElement('li');
         notificationItem.textContent = `${data.timestamp.split(' - ')[1].substring(0, 5)} < ${data.changedBy} > - 更新 - ${data.area}/${data.counter_time}趟次為 ${data.counter}`;
         notificationList.appendChild(notificationItem);
@@ -182,6 +240,7 @@ function connectWebSocket() {
     maintenanceOverlay.style.display = 'flex';
   };
 }
+
 
 
 // 定期檢查快取開關狀態

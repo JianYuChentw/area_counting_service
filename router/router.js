@@ -58,7 +58,7 @@ router.post('/cache_switch',roleGuard('admin'), updateCacheSwitchStatus);
 router.post('/records',roleGuard('admin'), validateCreateRecord, validate, createRecord);
 
 // 獲取操作記錄，包含日期參數的驗證
-router.get('/records',roleGuard('admin'), validateGetRecords, validate, getRecords);
+router.get('/records', validateGetRecords, validate, getRecords);
 
 // 刪除操作記錄，包含ID的驗證
 router.delete('/records/:id',roleGuard('admin'), validateId, validate, removeRecord);
