@@ -64,6 +64,7 @@ cron.schedule('1 0 * * *', () => {
 
 cron.schedule('10 0 * * *', () => {
   console.log('每天 00:10 重置快取並啟動服務');
+  setCacheEnabled(false);
   setCacheEnabled(true);
 });
 
