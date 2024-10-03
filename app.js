@@ -62,10 +62,10 @@ cron.schedule('1 0 * * *', () => {
    checkAndInsertRegionCounters();
 });
 
-cron.schedule('10 0 * * *', () => {
+cron.schedule('10 0 * * *', async() => {
   console.log('每天 00:10 重置快取並啟動服務');
-  setCacheEnabled(false);
-  setCacheEnabled(true);
+  await setCacheEnabled(false);
+  await setCacheEnabled(true);
 });
 
 // 捕捉 WebSocket 錯誤事件
