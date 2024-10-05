@@ -1,7 +1,3 @@
-// const baseUrl = 'http://localhost:3100/api2'; // 伺服器基礎 URL
-
-const baseUrl = 'http://3.27.140.23/api2'; // 修改為雲端伺服器基礎 URL
-
 // 動態生成當天及前三天的日期選項
 const dateSelect = document.getElementById('dateSelect');
 const today = new Date();
@@ -18,10 +14,10 @@ document
     window.location.href = './backstage.html'; // 目標頁面
   });
 
-// 生成當天及前三天的日期
-for (let i = 0; i < 4; i++) {
-  const date = new Date(today);
-  date.setDate(today.getDate() - i);
+// 生成當天及前三天和後三天的日期
+for (let i = -3; i <= 3; i++) {
+  const date = new Date(); // 以當前日期為基準
+  date.setDate(date.getDate() + i); // 計算前後的天數
   const formattedDate = date.toISOString().split('T')[0]; // 格式化為 YYYY-MM-DD
 
   const option = document.createElement('option');
@@ -29,6 +25,7 @@ for (let i = 0; i < 4; i++) {
   option.textContent = formattedDate;
   dateSelect.appendChild(option);
 }
+
 
 // 生成時間選擇下拉選單，範圍 08:00 - 18:00，每 30 分鐘一個選項
 const timeSelect = document.getElementById('timeSelect');
@@ -75,11 +72,14 @@ document.getElementById('filterButton').addEventListener('click', () => {
 
       // 將每筆記錄添加到表格中
       data.forEach((record) => {
-        const row = document.createElement('tr');
+        const row = document.createElement('tr');   
 
         row.innerHTML = `
                         <td>${new Date(
                           record.record_date
+                        ).toLocaleDateString()}</td>
+                        <td>${new Date(
+                          record.data_date
                         ).toLocaleDateString()}</td>
                         <td>${record.time_period}</td>
                         <td>${record.content}</td>

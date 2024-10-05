@@ -2,7 +2,7 @@ const { getRegionCountersByDate } = require('../model/area');
 const { getTaiwanDate } = require('../utils/utils')
 
 /**
- * 初始化快取，將指定日期的區域計數器資料存入快取。
+ * 初始化快取，將當日以及接下來三天的區域計數器資料存入快取。
  * @async
  * @function initCache
  * @param {Object} cache - 用來存放快取資料的對象。
@@ -13,10 +13,24 @@ async function initCache(cache) {
   // 獲取台灣當日日期
   const todayInTaiwan = getTaiwanDate();
   
-  // 使用當日日期來初始化快取
-  const regionData = await getRegionCountersByDate(todayInTaiwan);
-  cache[todayInTaiwan] = regionData;
-  console.log('快取初始化完成', todayInTaiwan);
+  // 初始化一個包含當日及未來三天的日期陣列
+  const dates = [];
+  const baseDate = new Date(todayInTaiwan);
+  
+  for (let i = 0; i <= 3; i++) {
+    const futureDate = new Date(baseDate);
+    futureDate.setDate(baseDate.getDate() + i); // 加上 i 天
+    const formattedDate = futureDate.toISOString().split('T')[0]; // 格式化為 YYYY-MM-DD
+    dates.push(formattedDate);
+  }
+
+  // 遍歷日期陣列，將每個日期的區域計數器資料存入快取
+  for (const date of dates) {
+    const regionData = await getRegionCountersByDate(date);
+    cache[date] = regionData;
+    console.log('快取初始化完成', date);
+  }
+
   // 如果需要檢查快取內容，可以取消註解
   // console.log('快取初始化完成', cache);
 }

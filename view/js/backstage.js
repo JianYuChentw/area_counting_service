@@ -1,9 +1,3 @@
-
-    // const baseUrl = 'http://localhost:3100/api2'; // 伺服器基礎 URL
-
-    const baseUrl = 'http://3.27.140.23/api2'; // 修改為雲端伺服器基礎 URL
-
-
     document.getElementById('timePeriodTripsManagementBtn').addEventListener('click', function() {
       window.location.href = './areaTimePeriod.html';  // 目標頁面
     });

@@ -1,21 +1,9 @@
-// 建立 WebSocket 連接到伺服器
-let socket;
-let checkInterval;
-
-// const sockUrl = 'ws://localhost:3100'; // 伺服器socket URL
-const sockUrl = 'ws://3.27.140.23/ws/'; // 修改為雲端伺服器socket URL
-
-// const baseUrl = 'http://localhost:3100/api2'; // 伺服器基礎 URL
-const baseUrl = 'http://3.27.140.23/api2'; // 修改為雲端伺服器基礎 URL
-
-
-async function fetchDailyNotifications() {
+async function fetchDailyNotifications(selectedDate) {
   try {
-    // 獲取當天的日期，格式為 YYYY-MM-DD
-    const today = new Date();
-    const formattedDate = today.toISOString().split('T')[0]; // 取得 YYYY-MM-DD 格式
+    // 使用選擇的日期作為 startDate 和 endDate
+    const formattedDate = selectedDate; // 選擇的日期會是 YYYY-MM-DD 格式
+    
 
-    // 使用當天日期作為 startDate 和 endDate
     const url = `${baseUrl}/records?startDate=${formattedDate}&endDate=${formattedDate}`;
 
     const response = await fetch(url, {
@@ -32,7 +20,6 @@ async function fetchDailyNotifications() {
       notificationList.innerHTML = ''; // 清空現有的通知列表
 
       notifications.forEach(notification => {
-        
         const notificationItem = document.createElement('li');
         // 格式化推播訊息
         const formattedTime = new Date(notification.record_date).toLocaleTimeString('zh-TW', {
@@ -56,13 +43,19 @@ async function fetchDailyNotifications() {
   }
 }
 
+// 監聽日期下拉選擇變更事件，並根據選擇的日期來呼叫 fetchDailyNotifications
+document.getElementById('dateDropdown').addEventListener('change', function () {
+  const selectedDate = this.value;  // 取得選擇的日期
+  fetchDailyNotifications(selectedDate);  // 呼叫 API 獲取該日期的推播訊息
+});
+
 function connectWebSocket() {
   socket = new WebSocket(sockUrl);
 
   const regionCounters = document.getElementById('regionCounters');
   const notificationList = document.getElementById('notificationList');
   const notificationArea = document.getElementById('notificationArea');
-  const maintenanceOverlay = document.getElementById('maintenanceOverlay');  
+  const maintenanceOverlay = document.getElementById('maintenanceOverlay');
 
   // 檢查是否用戶正在手動滾動推播區域
   let isUserScrolling = false;
@@ -85,9 +78,27 @@ function connectWebSocket() {
     console.log('已連接到 WebSocket 伺服器');
     socket.send(JSON.stringify({ type: 'nameSubmission', name: userName }));
 
-    // 呼叫 API 來獲取當日歷史推播訊息
-    await fetchDailyNotifications();
+    // 獲取當前選擇的日期，如果為空則設置為當天日期
+    let selectedDate = document.getElementById('dateDropdown').value;
+    if (!selectedDate) {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      selectedDate = `${year}-${month}-${day}`;
+    }
+
+    // 傳送選擇的日期到服務端，請求相應的區域數據
+    socket.send(JSON.stringify({ type: 'dateSelection', date: selectedDate }));
+
+    await fetchDailyNotifications(selectedDate); // 使用選擇的日期獲取推播訊息
   };
+
+  // 監聽日期選擇器的變更，並向服務端發送新的日期
+  document.getElementById('dateDropdown').addEventListener('change', function () {
+    const selectedDate = this.value;
+    socket.send(JSON.stringify({ type: 'dateSelection', date: selectedDate })); // 發送新選擇的日期
+  });
 
   socket.onmessage = (event) => {
     const data = JSON.parse(event.data);
@@ -98,14 +109,7 @@ function connectWebSocket() {
       return;
     } else {
       maintenanceOverlay.style.display = 'none';  // 隱藏維護提示畫面
-    }
-
-    // 如果有 status 欄位並且狀態碼不是 200，則彈出提示框
-    if (data.status && data.status !== 200) {
-      alert(`操作失敗：${data.message || '未知錯誤'}`);
-      return;
-    }
-
+    }    
     // 如果是區域數據或計數器更新
     if (data.type === 'regionData' || data.type === 'counterUpdate') {
       // 保存滾動位置
@@ -134,13 +138,14 @@ function connectWebSocket() {
         regionDiv.className = 'region';
 
         counters.forEach(counter => {
+
           const counterItem = document.createElement('div');
           counterItem.className = 'region-counter';
 
           // 根據趟數設定背景顏色，如果趟數為 0，設置背景為紅色，否則恢復原本顏色
           if (counter.counter_value === 0) {
             counterItem.style.backgroundColor = '#FF9797';  // 設定為紅色
-          } else if (counter.counter_value === counter.max_counter_value){
+          } else if (counter.counter_value === counter.max_counter_value) {
             counterItem.style.backgroundColor = '#90EEB3';
           } else {
             counterItem.style.backgroundColor = '#f9f9f9';  // 恢復為原本顏色
@@ -180,9 +185,6 @@ function connectWebSocket() {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
             hour12: false
           }).format(timestamp).replace(/\//g, '/').replace(',', ' -');
           socket.send(JSON.stringify({ userName: userName, type: 'action', action: 'increment', id: id, timestamp: formattedTimestamp, timeOnly: timeOnly }));
@@ -202,9 +204,6 @@ function connectWebSocket() {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
             hour12: false
           }).format(timestamp).replace(/\//g, '/').replace(',', ' -');
           socket.send(JSON.stringify({ userName: userName, type: 'action', action: 'decrement', id: id, timestamp: formattedTimestamp, timeOnly: timeOnly }));
@@ -214,9 +213,9 @@ function connectWebSocket() {
 
     // 處理計數器更新推播訊息
     if (data.type === 'counterUpdate') {
-      if (data.changedBy) {
+      if (data.changedBy) {        
         const notificationItem = document.createElement('li');
-        notificationItem.textContent = `${data.timestamp.split(' - ')[1].substring(0, 5)} < ${data.changedBy} > - 更新 - ${data.area}/${data.counter_time}趟次為 ${data.counter}`;
+        notificationItem.textContent = `${data.timestamp} < ${data.changedBy} > - 更新 - ${data.area}/${data.counter_time}趟次為 ${data.counter}`;
         notificationList.appendChild(notificationItem);
 
         if (!isUserScrolling) {
@@ -243,28 +242,7 @@ function connectWebSocket() {
 
 
 
-// 定期檢查快取開關狀態
-async function checkCacheStatus() {
-  try {
-    const response = await fetch(`${baseUrl}/cache_switch`);
-    const result = await response.json();
-    const maintenanceOverlay = document.getElementById('maintenanceOverlay');
-    
-    if (response.ok && result.cacheEnabled) {
-      maintenanceOverlay.style.display = 'none';  // 隱藏維護提示
-
-      
-    } else {
-      maintenanceOverlay.style.display = 'flex';  // 顯示維護提示
-    }
-  } catch (error) {
-    console.error('檢查快取狀態失敗:', error);
-    maintenanceOverlay.style.display = 'flex';  // 發生錯誤時顯示維護提示
-  }
-}
 
 // 初始化 WebSocket 連接
 connectWebSocket();
 
-// 開始定期檢查快取狀態
-checkInterval = setInterval(checkCacheStatus, 3000);  // 每3秒檢查一次

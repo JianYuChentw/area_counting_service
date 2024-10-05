@@ -1,7 +1,3 @@
-// const baseUrl = 'http://localhost:3100/api2'; // 伺服器基礎 URL
-
-const baseUrl = 'http://3.27.140.23/api2'; // 修改為雲端伺服器基礎 URL
-
 // 當按鈕被點擊時，跳轉到目標頁面
 document.getElementById('areaManagementBtn').addEventListener('click', function() {
     window.location.href = './backstage.html';  // 目標頁面

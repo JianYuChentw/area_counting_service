@@ -1,8 +1,5 @@
 // 當頁面加載時，檢查用戶是否已經登入
 const adminPage = "./areaTimePeriod.html";
-// const baseUrl = 'http://localhost:3100/api2'; // 伺服器基礎 URL
-
-const baseUrl = 'http://3.27.140.23/api2'; // 修改為雲端伺服器基礎 URL
 
 window.addEventListener('load', () => {
   fetch(`${baseUrl}/checkLogin`, {

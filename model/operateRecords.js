@@ -9,16 +9,16 @@ const db = require('../db/db');
  * @returns {Promise<number>} 新增記錄的 ID
  * @throws {Error} 如果新增過程發生錯誤，會拋出錯誤
  */
-async function addRecord(record_date, time_period, content) {
+async function addRecord(record_date, data_date, time_period, content) {
   const query = `
-    INSERT INTO operate_records (record_date, time_period, content)
-    VALUES (?, ?, ?)
+    INSERT INTO operate_records (record_date, data_date, time_period, content)
+    VALUES (?, ?, ?, ?)
   `;
   
   let conn;
   try {
     conn = await db.pool.getConnection(); // 獲取連接
-    const [result] = await conn.execute(query, [record_date, time_period, content]);
+    const [result] = await conn.execute(query, [record_date, data_date, time_period, content]);
     // console.log('Record added successfully:', result.insertId);
     return result.insertId; // 回傳新增的ID
   } catch (error) {
@@ -40,7 +40,7 @@ async function addRecord(record_date, time_period, content) {
  */
 async function getRecordsByConditions(startDate, endDate, timePeriod) {
     let query = `
-      SELECT id, record_date, time_period, content, created_at, updated_at
+      SELECT id, record_date, data_date ,time_period, content, created_at, updated_at
       FROM operate_records
       WHERE 1=1
     `;
@@ -49,7 +49,7 @@ async function getRecordsByConditions(startDate, endDate, timePeriod) {
   
     // 根據提供的條件構建查詢
     if (startDate && endDate) {
-      query += ` AND record_date BETWEEN ? AND ?`;
+      query += ` AND data_date BETWEEN ? AND ?`;
       params.push(startDate, endDate);
     }
   

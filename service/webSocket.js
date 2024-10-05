@@ -22,26 +22,20 @@ function setupWebSocket(wss) {
   wss.on('connection', (ws) => {
     // 檢查服務是否正在維護中
     if (!cacheEnabled) {
-      // 服務維護中，關閉連接
-      ws.close(1011, '服務目前關閉，正在維護中');  // 1011 是標準的 WebSocket 錯誤碼，用於服務端異常關閉
+      ws.close(1011, '服務目前關閉，正在維護中');
       return;
     }
 
     console.log('新客戶端連接');
 
-    /**
-     * 當接收到客戶端訊息時處理邏輯。
-     * @event WebSocket#message
-     * @param {string} message - 來自客戶端的訊息，包含操作類型和數據。
-     */
     ws.on('message', async (message) => {
       const data = JSON.parse(message);
 
-      // 處理客戶端提交姓名的訊息
+      // 處理客戶端提交的姓名訊息
       if (data.type === 'nameSubmission') {
         clientsInfo.set(ws, data.name);
 
-        // 傳遞快取中的區域數據給客戶端
+        // 預設傳遞當日的快取區域數據
         const todayInTaiwan = getTaiwanDate();
         const cachedData = cache[todayInTaiwan];
 
@@ -61,6 +55,28 @@ function setupWebSocket(wss) {
         return;
       }
 
+      // 根據前端選取的日期返回區域計數器資料
+      if (data.type === 'dateSelection') {
+        const selectedDate = data.date; 
+        
+        // 檢查快取是否存在選取日期的數據
+        const cachedData = cache[selectedDate];
+        if (cachedData) {
+          ws.send(JSON.stringify({
+            type: 'regionData',
+            regionData: cachedData,
+            status: 200
+          }));
+        } else {
+          ws.send(JSON.stringify({
+            type: 'error',
+            message: `該日期 (${selectedDate}) 沒有可用的快取資料`,
+            status: 404
+          }));
+        }
+        return;
+      }
+
       const userName = clientsInfo.get(ws);
       if (!userName) {
         ws.send(JSON.stringify({
@@ -72,6 +88,8 @@ function setupWebSocket(wss) {
       }
 
       // 根據客戶端操作進行計數器值的更新
+      console.log(data);
+      
       if (data.type === 'action') {
         const { id, action } = data;
 
@@ -85,9 +103,14 @@ function setupWebSocket(wss) {
           }));
           return;
         }
-        
-        const todayInTaiwan = getTaiwanDate();
-        const regionData = cache[todayInTaiwan];
+        const dataDate = new Date(exists.date).toLocaleDateString('zh-TW', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        }).replace(/\//g, '-');
+
+        // console.log('轉換測試',dataDate)
+        const regionData = cache[dataDate];
 
         if (!regionData) {
           ws.send(JSON.stringify({
@@ -107,25 +130,26 @@ function setupWebSocket(wss) {
           }));
           return;
         }
-
+        console.log(targetRegion);
+        
         const { area, counter_time, counter_value, max_counter_value } = targetRegion;
 
         let updatedCounterValue;
-        // 根據操作類型增減計數器值
-        if (action === 'increment') {  
-          const content = `${data.timeOnly} < ${data.userName} > - 更新 - ${area}/${counter_time}趟次為 ${counter_value+1}`
-          if (counter_value+1 <= max_counter_value) {
-            addRecord(formatToDate(data.timestamp), counter_time,content )
+        if (action === 'increment') {
+          const content = `${data.timeOnly} < ${data.userName} > - 更新 - ${area}/${counter_time}趟次為 ${counter_value+1}`;
+          if (counter_value + 1 <= max_counter_value) {
+            addRecord(formatToDate(data.timestamp), dataDate, counter_time, content);
           }
           updatedCounterValue = await updateAreaCounterValueById(id, 'increment');
         } else if (action === 'decrement') {
-          const content = `${data.timeOnly} < ${data.userName} > - 更新 - ${area}/${counter_time}趟次為 ${counter_value-1}`
-          if (counter_value-1  >= 0) {
-            addRecord(formatToDate(data.timestamp), counter_time,content )
+          const content = `${data.timeOnly} < ${data.userName} > - 更新 - ${area}/${counter_time}趟次為 ${counter_value-1}`;
+          if (counter_value - 1 >= 0) {
+            // console.log('減的戳記',formatToDate(data.timestamp), dataDate, counter_time, content);
+            
+            addRecord(formatToDate(data.timestamp), dataDate,  counter_time, content);
           }
           updatedCounterValue = await updateAreaCounterValueById(id, 'decrement');
         } else {
-          // 如果操作類型無效，回傳錯誤
           ws.send(JSON.stringify({
             type: 'error',
             message: '無效的操作類型',
@@ -134,11 +158,9 @@ function setupWebSocket(wss) {
           return;
         }
 
-        // 如果更新成功，更新快取並廣播結果
         if (updatedCounterValue !== false) {
-          cache = await updateCache(todayInTaiwan, cache);
+          cache = await updateCache(dataDate, cache);
 
-          // 廣播更新結果給所有已連接的客戶端
           wss.clients.forEach(client => {
             if (client.readyState === WebSocket.OPEN) {
               client.send(JSON.stringify({
@@ -147,14 +169,13 @@ function setupWebSocket(wss) {
                 counter_time,
                 counter: updatedCounterValue,
                 changedBy: userName,
-                timestamp: formatTimestamp(data.timestamp),
-                regionData: cache[todayInTaiwan],
+                timestamp: data.timeOnly,
+                regionData: cache[dataDate],
                 status: 200
               }));
             }
           });
         } else {
-          // 如果更新失敗（例如超出範圍），回傳錯誤訊息
           ws.send(JSON.stringify({
             type: 'error',
             message: '更新失敗，超出設定趟次範圍',
@@ -164,16 +185,13 @@ function setupWebSocket(wss) {
       }
     });
 
-    /**
-     * 當客戶端斷開連接時清理資料。
-     * @event WebSocket#close
-     */
     ws.on('close', () => {
       console.log('客戶端斷開連接');
       clientsInfo.delete(ws);
     });
   });
 }
+
 
 /**
  * 設置快取是否啟用的開關。
