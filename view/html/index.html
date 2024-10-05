@@ -43,6 +43,7 @@
 
   <script>
     // 確保頁面 DOM 完全載入後再執行
+    // 確保頁面 DOM 完全載入後再執行
     document.addEventListener('DOMContentLoaded', function () {
       const dateDropdown = document.getElementById('dateDropdown');
       const currentDateElement = document.getElementById('currentDate');
@@ -51,15 +52,15 @@
       // 取得當前日期
       const currentDate = new Date();
 
-      // 生成未來三天的日期
-      for (let i = 0; i <= 3; i++) {
-        const futureDate = new Date();
-        futureDate.setDate(currentDate.getDate() + i);  // 加上天數來取得未來日期
+      // 生成前後三天的日期
+      for (let i = -3; i <= 3; i++) {
+        const targetDate = new Date();
+        targetDate.setDate(currentDate.getDate() + i);  // 加上或減去天數來取得過去和未來的日期
 
-        const year = futureDate.getFullYear();
-        const month = String(futureDate.getMonth() + 1).padStart(2, '0');  // 月份從 0 開始，所以要 +1
-        const day = String(futureDate.getDate()).padStart(2, '0');
-        const dayOfWeek = daysOfWeek[futureDate.getDay()];
+        const year = targetDate.getFullYear();
+        const month = String(targetDate.getMonth() + 1).padStart(2, '0');  // 月份從 0 開始，所以要 +1
+        const day = String(targetDate.getDate()).padStart(2, '0');
+        const dayOfWeek = daysOfWeek[targetDate.getDay()];
 
         // 格式化日期為 YYYY-MM-DD 星期
         const formattedDate = `${year}-${month}-${day} ${dayOfWeek}`;
@@ -71,9 +72,9 @@
         dateDropdown.appendChild(option);
       }
 
-      // 預設選擇第一個日期，即當天日期
-      dateDropdown.selectedIndex = 0;
-      currentDateElement.textContent = dateDropdown.options[0].text;
+      // 預設選擇當天的日期
+      dateDropdown.selectedIndex = 3; // 中間的選項是當天日期
+      currentDateElement.textContent = dateDropdown.options[3].text; // 預設選擇顯示當天
 
       // 監聽下拉選單變更，動態更新顯示的日期
       dateDropdown.addEventListener('change', function () {
