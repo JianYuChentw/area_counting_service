@@ -29,7 +29,7 @@ async function initCache(cache) {
   for (const date of dates) {
     const regionData = await getRegionCountersByDate(date);
     cache[date] = regionData;
-    console.log('快取初始化完成', date ,cache[date].length);
+    // console.log('快取初始化完成', date ,cache[date].length);
   }
 
   // 如果需要檢查快取內容，可以取消註解

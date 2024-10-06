@@ -1,6 +1,14 @@
-const { addAreaRegionCounter, deleteAreaRegionCounter, updateAreaRegionCounter, areaRegionCounterExists,conditionsGetRegionCounters } = require('../model/areaTimePeriod');
+const {
+  addAreaRegionCounter,
+  deleteAreaRegionCounter,
+  updateAreaRegionCounter,
+  areaRegionCounterExists,
+  conditionsGetRegionCounters,
+  getRegionCountersByDateRange,
+  updateRegionCountersState
+} = require('../model/areaTimePeriod');
 const { regionExists, getRegionCountersByDate } = require('../model/area');
-const { getCacheStatus } = require('../service/webSocket'); // 引入 getCacheStatus
+const { getCacheStatus } = require('../service/webSocket');
 
 /**
  * 新增區域時段的計數器資料
@@ -54,7 +62,6 @@ async function addAreaTimePeriodCounter(req, res) {
   }
 }
 
-
 /**
  * 刪除區域時段的計數器資料
  * @async
@@ -67,7 +74,7 @@ async function deleteAreaTimePeriodCounter(req, res) {
   try {
     const { id } = req.params;
     console.log(id);
-    
+
     if (getCacheStatus()) {
       return res.status(503).json({ message: '服務中，無法進行新增操作' });
     }
@@ -75,13 +82,17 @@ async function deleteAreaTimePeriodCounter(req, res) {
     // 確認區域計數器是否存在
     const exists = await areaRegionCounterExists(id);
     if (!exists) {
-      return res.status(404).json({ message: `區域時段計數器 ID ${id} 不存在` });
+      return res
+        .status(404)
+        .json({ message: `區域時段計數器 ID ${id} 不存在` });
     }
 
     // 刪除區域時段資料
     const deleted = await deleteAreaRegionCounter(id);
     if (deleted) {
-      return res.status(200).json({ message: `區域時段計數器 ID ${id} 已成功刪除` });
+      return res
+        .status(200)
+        .json({ message: `區域時段計數器 ID ${id} 已成功刪除` });
     } else {
       return res.status(500).json({ message: '刪除區域時段計數器時發生錯誤' });
     }
@@ -112,7 +123,9 @@ async function updateAreaTimePeriodCounter(req, res) {
     // 使用 areaRegionCounterExists 來確認計數器是否存在並獲取其完整資料
     const regionCounter = await areaRegionCounterExists(id);
     if (!regionCounter) {
-      return res.status(404).json({ message: `區域時段計數器 ID ${id} 不存在` });
+      return res
+        .status(404)
+        .json({ message: `區域時段計數器 ID ${id} 不存在` });
     }
 
     // 從查詢結果中獲取當前的最大計數值
@@ -131,11 +144,18 @@ async function updateAreaTimePeriodCounter(req, res) {
     }
 
     // 更新最大計數值
-    const updated = await updateAreaRegionCounter(id, { max_counter_value: maxCounterValue });
+    const updated = await updateAreaRegionCounter(id, {
+      max_counter_value: maxCounterValue,
+    });
     console.log(updated);
-    
+
     if (updated) {
-      return res.status(200).json({ message: `區域時段計數器 ID ${id} 的最大計數值已成功更新`, max_counter_value: maxCounterValue });
+      return res
+        .status(200)
+        .json({
+          message: `區域時段計數器 ID ${id} 的最大計數值已成功更新`,
+          max_counter_value: maxCounterValue,
+        });
     } else {
       return res.status(500).json({ message: '更新區域時段計數器時發生錯誤' });
     }
@@ -145,10 +165,69 @@ async function updateAreaTimePeriodCounter(req, res) {
   }
 }
 
+async function timePeriodupdateState(req, res) {
+  const { date, region_id, state } = req.query;
+  const newState = parseInt(state, 10); 
+console.log(date, region_id,newState);
 
+  try {
+    // 調用整合後的 model 函數來更新 state
+    const result = await updateRegionCountersState({ date, region_id }, newState);
+    console.log(result);
+    
+    res.status(200).json({ message: `成功更新 state` });
+  } catch (err) {
+    console.error('更新 state 時出錯:', err);
+    res.status(500).json({ error: '無法更新 state' });
+  }
+}
+
+/**
+ * 從指定的日期範圍內拉取並整理 region_counters 資料。
+ * 資料以日期為 key，並包含每個日期下不重複的區域 id、區域名稱和狀態。
+ * @async
+ * @function getRegionCounters
+ * @param {Request} req - Express 的請求物件，包含查詢參數 startDate 和 endDate。
+ * @param {Response} res - Express 的回應物件。
+ */
+async function getTimePeriodRegionCounters(req, res) {
+  const { startDate, endDate } = req.query;
+
+  try {
+    // 從 model 獲取資料
+    const rows = await getRegionCountersByDateRange(startDate, endDate);
+    console.log(rows);
+
+    // 整理資料，以日期為 key
+    const result = rows.reduce((acc, row) => {
+      const { date, region_id, state, region_area } = row;
+
+      // 如果當前日期尚未在 acc 中，則初始化一個空陣列
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+
+      // 將資料 push 進對應日期的陣列
+      acc[date].push({
+        region_id,
+        state,
+        region_area,
+      });
+
+      return acc;
+    }, {});
+
+    res.status(200).json(result);
+  } catch (err) {
+    console.error('整理 region_counters 資料時出錯:', err);
+    res.status(500).json({ error: '無法整理 region_counters 資料' });
+  }
+}
 
 module.exports = {
   addAreaTimePeriodCounter,
   deleteAreaTimePeriodCounter,
   updateAreaTimePeriodCounter,
+  getTimePeriodRegionCounters,
+  timePeriodupdateState,
 };

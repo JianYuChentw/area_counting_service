@@ -287,11 +287,99 @@ async function conditionsGetRegionCounters({ regionId, date, counterTime, state,
   return rows;
 }
 
+/**
+ * 拉取指定日期範圍內的region_counters 資料，。
+ * @async
+ * @function getRegionCountersByDateRange
+ * @param {string} startDate - 查詢開始的日期 (格式: YYYY-MM-DD)。
+ * @param {string} endDate - 查詢結束的日期 (格式: YYYY-MM-DD)。
+ * @returns {Promise<Array<Object>>} - 返回包含 region_counters 主表的資料，並附加區域名稱。
+ */
+async function getRegionCountersByDateRange(startDate, endDate) {
+  let conn;
+  try {
+    conn = await db.pool.getConnection();
+
+    const query = `
+      SELECT 
+        DATE_FORMAT(rc.date, '%Y-%m-%d') AS date,  -- 確保日期格式為 YYYY-MM-DD
+        rc.region_id,
+        rc.state,
+        r.area AS region_area
+      FROM region_counters rc
+      JOIN regions r ON rc.region_id = r.id
+      WHERE rc.date BETWEEN ? AND ?
+      GROUP BY rc.date, rc.region_id, rc.state
+      ORDER BY rc.date, rc.region_id
+    `;
+
+    // 執行查詢，拉取日期範圍內的資料
+    const [rows] = await conn.query(query, [startDate, endDate]);
+    console.log(rows);
+    
+    return rows;
+  } catch (err) {
+    console.error('拉取 region_counters 資料過程中出錯:', err);
+    throw err;
+  } finally {
+    if (conn) {
+      conn.release(); // 確保釋放資料庫連線
+    }
+  }
+}
+
+
+/**
+ * 根據 `date` 更新區域的 state，並可選擇指定 `region_id`。
+ * @param {Object} options - 更新選項，包含 `date` 和可選的 `region_id`。
+ * @param {string} options.date - 要更新的日期，格式為 YYYY-MM-DD (必須)。
+ * @param {number} [options.region_id] - 要更新的區域 ID (可選)。
+ * @param {number} newState - 要設置的 state 值 (0 或 1) (必須)。
+ * @returns {Promise} - 返回更新結果。
+ * @throws {Error} - 如果沒有提供 `date` 或 `state`，拋出錯誤。
+ */
+async function updateRegionCountersState({ date, region_id }, newState) {
+  
+  let conn;
+  try {
+    // 獲取資料庫連接
+    conn = await db.pool.getConnection();
+    
+    let query = `
+      UPDATE region_counters
+      SET state = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE date = ?
+    `;
+    const params = [newState, date];
+
+    // 如果提供了 region_id，則添加條件更新指定區域
+    if (region_id) {
+      query += ` AND region_id = ?`;
+      params.push(region_id);
+    }
+    // 執行更新查詢
+    const [result] = await conn.query(query, params);
+    
+    return result.changedRows > 0
+    
+  } catch (err) {
+    console.error('更新區域 state 時發生錯誤:', err);
+    throw err;
+  } finally {
+    // 確保連接被釋放
+    if (conn) conn.release();
+  }
+}
+
+
+
 module.exports = {
   areaRegionCounterExists, 
   addAreaRegionCounter,
   deleteAreaRegionCounter,
   updateAreaCounterValueById,
   updateAreaRegionCounter,
-  conditionsGetRegionCounters
+  conditionsGetRegionCounters,
+  getRegionCountersByDateRange,
+  updateRegionCountersState
 };

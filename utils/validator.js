@@ -96,6 +96,46 @@ const validateGetRecords = [
     .isString().withMessage('時間片必須是字串'),
 ];
 
+const validateGetRegionCounter = [
+  query('startDate')
+    .optional()
+    .matches(/^\d{4}-\d{2}-\d{2}$/)
+    .withMessage('開始日期格式無效，應為 YYYY-MM-DD'),
+  query('endDate')
+    .optional()
+    .matches(/^\d{4}-\d{2}-\d{2}$/)
+    .withMessage('結束日期格式無效，應為 YYYY-MM-DD'),
+];
+
+/**
+ * 驗證 `date` 和 `state` 的必須性
+ * - `date` 是必須的，格式應為 `YYYY-MM-DD`
+ * - `state` 是必須的，值必須是 0 或 1
+ * - `region_id` 是可選的，如果提供必須是整數
+ */
+const validateDateOrRegionId = [
+  // 驗證 `date` 是必須參數，且格式正確
+  query('date').exists().withMessage('日期是必要的')
+    .matches(/^\d{4}-\d{2}-\d{2}$/).withMessage('日期格式無效，應為 YYYY-MM-DD'),
+
+  // 驗證 `region_id` 是可選參數，但如果提供則必須是整數
+  query('region_id').optional()
+    .isInt().withMessage('region_id 必須是整數'),
+
+  // 驗證 `state` 是必須參數，且值必須是 0 或 1
+  query('state').exists().withMessage('state 是必要的')
+    .isIn(['0', '1']).withMessage('state 必須是 0 或 1'),
+
+  // 處理驗證錯誤
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  }
+];
+
 /**
  * 驗證請求中的參數，並處理驗證錯誤。如果有錯誤，返回 400 錯誤狀態碼和錯誤訊息。
  * @function validate
@@ -127,5 +167,7 @@ module.exports = {
   validateUpdateCounter,
   validateCreateRecord,
   validateGetRecords,
+  validateDateOrRegionId,
+  validateGetRegionCounter,
   validate,
 };

@@ -3,7 +3,7 @@ const router = express.Router();
 const authController = require('../controllers/authController');
 const roleGuard = require('../middleware/role-guard')
 const { getRegionCounters, addRegionArea, deleteRegionArea, updateRegionArea, getAllRegionAreas,getSingleDayRegionName } = require('../controllers/arerCtrl');
-const { addAreaTimePeriodCounter, deleteAreaTimePeriodCounter, updateAreaTimePeriodCounter } = require('../controllers/areaTimePeriodCtrl');
+const { addAreaTimePeriodCounter, deleteAreaTimePeriodCounter, updateAreaTimePeriodCounter, getTimePeriodRegionCounters, timePeriodupdateState } = require('../controllers/areaTimePeriodCtrl');
 const { getCacheSwitchStatus, updateCacheSwitchStatus } = require('../controllers/switchCtrl');
 const{createRecord, getRecords, removeRecord} = require('../controllers/operateRecordsCtrl')
 const {   
@@ -14,6 +14,8 @@ const {
     validateUpdateCounter,
     validateCreateRecord,
     validateGetRecords,
+    validateDateOrRegionId,
+    validateGetRegionCounter,
     validate, } = require('../utils/validator'); // 確保所有驗證器正確引入
 
 // 區域API
@@ -36,6 +38,10 @@ router.put('/update_region/:id' ,roleGuard('admin') , validateId, validateAreaAn
 
 // 時段API
 
+// 獲取區域時段開放狀態
+router.get('/region_counter',validateGetRegionCounter,validate, getTimePeriodRegionCounters);
+// router.get('/region_counter',roleGuard('admin'),validateGetRegionCounter,validate, getTimePeriodRegionCounters);
+
 // 新增區域時段計數器
 router.post('/add_region_counter',roleGuard('admin'), validateRegionCounter, validate, addAreaTimePeriodCounter);
 
@@ -44,6 +50,9 @@ router.delete('/delete_region_counter/:id',roleGuard('admin'), validateId, valid
 
 // 更新區域時段計數器
 router.put('/update_region_counter/:id',roleGuard('admin'), validateUpdateCounter, validate, updateAreaTimePeriodCounter);
+
+// router.put('/update_state',roleGuard('admin'), validateDateOrRegionId, validate, timePeriodupdateState);
+router.put('/update_state', validateDateOrRegionId, validate, timePeriodupdateState);
 
 // 開關API
 
