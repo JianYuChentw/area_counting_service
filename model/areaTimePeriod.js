@@ -315,7 +315,6 @@ async function getRegionCountersByDateRange(startDate, endDate) {
 
     // 執行查詢，拉取日期範圍內的資料
     const [rows] = await conn.query(query, [startDate, endDate]);
-    console.log(rows);
     
     return rows;
   } catch (err) {

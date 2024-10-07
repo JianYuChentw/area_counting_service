@@ -6,6 +6,12 @@ document.getElementById('areaManagementBtn').addEventListener('click', function(
   document.getElementById('recordsBtn').addEventListener('click', function() {
     window.location.href = './recordsPage.html';  // 目標頁面
   });
+
+  document
+  .getElementById('areaOpenCtrlBtn')
+  .addEventListener('click', function () {
+    window.location.href = './areaOpenController.html'; // 目標頁面
+  });
   
 // 獲取當前系統日期並格式化為 YYYY/MM/DD
 const currentDate = new Date();

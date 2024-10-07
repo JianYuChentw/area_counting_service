@@ -5,7 +5,6 @@ window.addEventListener('load', () => {
     })
     .then(response => response.json())
     .then(data => {
-      console.log(data);
       
       if (!data.loggedIn) {
           window.location.href = "./loginPage.html";

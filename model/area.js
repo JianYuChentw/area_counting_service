@@ -2,37 +2,41 @@ const db = require('../db/db');
 
 /**
  * 根據指定的日期查詢區域計數器的資料，並包含計數器的值、最大值和狀態。
+ * 可以選擇指定的 state 過濾條件，默認查詢 state = 1 的記錄。
  * @async
  * @param {string} date - 要查詢的日期，格式為 YYYY-MM-DD。
+ * @param {number} [state=1] - (選填) 要查詢的狀態，預設為 1。
  * @returns {Promise<Object[]>} - 返回包含區域計數器資料的數組，每個對象包含區域名稱、計數器時間、日期、計數器值、最大計數器值和狀態。
  * @throws {Error} - 如果查詢過程中發生錯誤，將在控制台記錄錯誤。
  */
-async function getRegionCountersByDate(date) {
+async function getRegionCountersByDate(date, state = 1) {
   let conn;
   try {
     conn = await db.pool.getConnection();
     
-    // 查詢指定日期的所有區域資料，並同時取得 max_counter_value 和 state
+    // 查詢指定日期且滿足 state 條件的所有區域資料，並同時取得 max_counter_value 和 state
     const query = `
       SELECT rc.id, r.area, DATE_FORMAT(rc.counter_time, '%H:%i') as counter_time, 
              DATE_FORMAT(rc.date, '%Y/%m/%d') as date, rc.counter_value, rc.max_counter_value, rc.state
       FROM region_counters rc
       JOIN regions r ON rc.region_id = r.id
-      WHERE DATE(rc.date) = ?
+      WHERE DATE(rc.date) = ? AND rc.state = ?
       ORDER BY rc.counter_time;
     `;
 
     // 使用 prepared statement，避免 SQL 注入
-    const [rows] = await conn.query(query, [date]);
+    const [rows] = await conn.query(query, [date, state]);
 
     return rows;
     
   } catch (error) {
     console.error('查詢時發生錯誤:', error);
+    throw error;
   } finally {
     if (conn) conn.release(); // 釋放連線
   }
 }
+
 
 
 /**

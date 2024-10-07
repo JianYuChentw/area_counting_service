@@ -165,16 +165,37 @@ async function updateAreaTimePeriodCounter(req, res) {
   }
 }
 
+
+/**
+ * 根據傳入的日期 (`date`) 和可選的區域 ID (`region_id`) 更新區域的狀態 (`state`)。
+ * - 若系統目前正在進行快取處理，將會返回 503 狀態碼，表示無法進行操作。
+ * - 若更新成功，將返回 200 狀態碼和成功訊息。
+ * - 若更新失敗，將返回 500 狀態碼和錯誤訊息。
+ *
+ * @async
+ * @function timePeriodupdateState
+ * @param {Object} req - Express 的請求對象，包含查詢參數 `date`, `region_id`, 和 `state`。
+ * @param {string} req.query.date - 要更新的日期，格式為 YYYY-MM-DD。
+ * @param {string} [req.query.region_id] - 要更新的區域 ID（可選）。
+ * @param {string} req.query.state - 新的狀態值（0 或 1）。
+ * @param {Object} res - Express 的回應對象，用於發送狀態碼和結果給客戶端。
+ * @returns {Promise<void>} - 無返回值。函數執行後會直接返回 HTTP 回應。
+ * @throws {Error} - 如果更新操作失敗，將拋出錯誤並記錄錯誤日誌。
+ */
 async function timePeriodupdateState(req, res) {
   const { date, region_id, state } = req.query;
-  const newState = parseInt(state, 10); 
-console.log(date, region_id,newState);
-
+  const newState = parseInt(state, 10);
   try {
+    // 檢查快取狀態
+    if (getCacheStatus()) {
+      return res.status(503).json({ message: '服務中，無法進行操作' });
+    }
     // 調用整合後的 model 函數來更新 state
-    const result = await updateRegionCountersState({ date, region_id }, newState);
-    console.log(result);
-    
+    const result = await updateRegionCountersState(
+      { date, region_id },
+      newState
+    );
+
     res.status(200).json({ message: `成功更新 state` });
   } catch (err) {
     console.error('更新 state 時出錯:', err);
@@ -196,7 +217,6 @@ async function getTimePeriodRegionCounters(req, res) {
   try {
     // 從 model 獲取資料
     const rows = await getRegionCountersByDateRange(startDate, endDate);
-    console.log(rows);
 
     // 整理資料，以日期為 key
     const result = rows.reduce((acc, row) => {

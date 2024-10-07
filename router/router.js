@@ -39,8 +39,7 @@ router.put('/update_region/:id' ,roleGuard('admin') , validateId, validateAreaAn
 // 時段API
 
 // 獲取區域時段開放狀態
-router.get('/region_counter',validateGetRegionCounter,validate, getTimePeriodRegionCounters);
-// router.get('/region_counter',roleGuard('admin'),validateGetRegionCounter,validate, getTimePeriodRegionCounters);
+router.get('/region_counter',roleGuard('admin'),validateGetRegionCounter,validate, getTimePeriodRegionCounters);
 
 // 新增區域時段計數器
 router.post('/add_region_counter',roleGuard('admin'), validateRegionCounter, validate, addAreaTimePeriodCounter);
@@ -51,8 +50,7 @@ router.delete('/delete_region_counter/:id',roleGuard('admin'), validateId, valid
 // 更新區域時段計數器
 router.put('/update_region_counter/:id',roleGuard('admin'), validateUpdateCounter, validate, updateAreaTimePeriodCounter);
 
-// router.put('/update_state',roleGuard('admin'), validateDateOrRegionId, validate, timePeriodupdateState);
-router.put('/update_state', validateDateOrRegionId, validate, timePeriodupdateState);
+router.put('/update_state',roleGuard('admin'), validateDateOrRegionId, validate, timePeriodupdateState);
 
 // 開關API
 

@@ -1,0 +1,40 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    display: flex;
+    flex-direction: column;
+ 
+  }
+
+.region {
+    margin-left: 20px;
+}
+
+.region label {
+    margin-right: 10px;
+}
+
+.state-button {
+    margin-bottom: 10px;
+}
+
+.btn-group {
+    margin-top: 20px;
+}
+
+.switch-container {
+    margin-top: 20px;
+    font-size: 20px;
+}
+
+.accordion {
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+.accordion-button{
+    font-size: 22px;
+}
+
+.form-check label {
+    font-size: 20px;
+}

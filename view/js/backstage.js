@@ -5,6 +5,12 @@
     document.getElementById('recordsBtn').addEventListener('click', function() {
       window.location.href = './recordsPage.html';  // 目標頁面
     });
+      
+  document
+    .getElementById('areaOpenCtrlBtn')
+    .addEventListener('click', function () {
+      window.location.href = './areaOpenController.html'; // 目標頁面
+    });
 
     // 顯示所有區域資料
     async function fetchAllRegions() {

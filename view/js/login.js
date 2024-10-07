@@ -1,4 +1,3 @@
-// 當頁面加載時，檢查用戶是否已經登入
 const adminPage = "./areaTimePeriod.html";
 
 window.addEventListener('load', () => {

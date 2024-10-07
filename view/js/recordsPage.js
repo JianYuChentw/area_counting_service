@@ -14,6 +14,12 @@ document
     window.location.href = './backstage.html'; // 目標頁面
   });
 
+  document
+  .getElementById('areaOpenCtrlBtn')
+  .addEventListener('click', function () {
+    window.location.href = './areaOpenController.html'; // 目標頁面
+  });
+
 // 生成當天及前三天和後三天的日期
 for (let i = -3; i <= 3; i++) {
   const date = new Date(); // 以當前日期為基準
