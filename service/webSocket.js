@@ -88,8 +88,6 @@ function setupWebSocket(wss) {
       }
 
       // 根據客戶端操作進行計數器值的更新
-      console.log(data);
-      
       if (data.type === 'action') {
         const { id, action } = data;
 
@@ -109,7 +107,6 @@ function setupWebSocket(wss) {
           day: '2-digit'
         }).replace(/\//g, '-');
 
-        // console.log('轉換測試',dataDate)
         const regionData = cache[dataDate];
 
         if (!regionData) {
@@ -130,24 +127,21 @@ function setupWebSocket(wss) {
           }));
           return;
         }
-        console.log(targetRegion);
         
         const { area, counter_time, counter_value, max_counter_value } = targetRegion;
 
         let updatedCounterValue;
         if (action === 'increment') {
-          const content = `${data.timeOnly} < ${data.userName} > - 更新 - ${area}/${counter_time}趟次為 ${counter_value+1}`;
+          const content = `${formatToDate(data.timestamp)}/${data.timeOnly} < ${data.userName} > - 更新 - ${area}/${dataDate}/${counter_time}趟次為 ${counter_value+1}`;
           if (counter_value + 1 <= max_counter_value) {
             addRecord(formatToDate(data.timestamp), dataDate, counter_time, content);
           }
           updatedCounterValue = await updateAreaCounterValueById(id, 'increment');
         } else if (action === 'decrement') {
-          const content = `${data.timeOnly} < ${data.userName} > - 更新 - ${area}/${counter_time}趟次為 ${counter_value-1}`;
+          const content = `${formatToDate(data.timestamp)}/${data.timeOnly} < ${data.userName} > - 更新 - ${area}/${dataDate}/${counter_time}趟次為 ${counter_value-1}`;
           if (counter_value - 1 >= 0) {
-            // console.log('減的戳記',formatToDate(data.timestamp), dataDate, counter_time, content);
-            
             addRecord(formatToDate(data.timestamp), dataDate,  counter_time, content);
-          }
+          } 
           updatedCounterValue = await updateAreaCounterValueById(id, 'decrement');
         } else {
           ws.send(JSON.stringify({
@@ -163,12 +157,14 @@ function setupWebSocket(wss) {
 
           wss.clients.forEach(client => {
             if (client.readyState === WebSocket.OPEN) {
+
               client.send(JSON.stringify({
                 type: 'counterUpdate',
                 area,
                 counter_time,
                 counter: updatedCounterValue,
                 changedBy: userName,
+                date:data.timestamp,
                 timestamp: data.timeOnly,
                 regionData: cache[dataDate],
                 status: 200

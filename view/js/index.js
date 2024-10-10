@@ -211,11 +211,17 @@ function connectWebSocket() {
       });
     }
 
+
     // 處理計數器更新推播訊息
     if (data.type === 'counterUpdate') {
-      if (data.changedBy) {        
+      const formattedDate = new Intl.DateTimeFormat('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }).format(new Date()).replace(/\//g, '-').replace(',', ' -');
+      if (data.changedBy) {                
         const notificationItem = document.createElement('li');
-        notificationItem.textContent = `${data.timestamp} < ${data.changedBy} > - 更新 - ${data.area}/${data.counter_time}趟次為 ${data.counter}`;
+        notificationItem.textContent = `${formattedDate}/${data.timestamp} < ${data.changedBy} > - 更新 - ${data.area}/${data.date}/${data.counter_time}趟次為 ${data.counter}`;
         notificationList.appendChild(notificationItem);
 
         if (!isUserScrolling) {
