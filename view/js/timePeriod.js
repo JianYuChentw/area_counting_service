@@ -214,25 +214,37 @@ async function deleteCounter(id, area, counter_time) {
   }
 }
 
+// 組合時和分鐘
+function getSelectedTime() {
+  const hour = document.getElementById('counterTimeHour').value;
+  const minute = document.getElementById('counterTimeMinute').value;
+  console.log(`${hour}:${minute}:00`);
+  
+  return `${hour}:${minute}`; // 返回完整的時間格式
+}
+
+
 
 // 新增區域時段計數器
 document.getElementById('addCounterBtn').addEventListener('click', async () => {
   const regionId = document.getElementById('regionSelect').value;
   const regionName = document.getElementById('regionSelect').selectedOptions[0].textContent; // 取得區域名稱
-  const counterTime = document.getElementById('counterTime').value;
+  const counterTime = getSelectedTime()
   const maxCounterValue = document.getElementById('maxCounterValue').value;
 
   if (!regionId || !counterTime || !maxCounterValue) {
     alert('請完整填寫所有欄位');
     return;
   }
-
+ 
   const data = {
     region_id: regionId,
     counter_time: counterTime,
     date: dateSelector.value,
     max_counter_value: maxCounterValue
   };
+ console.log(data);
+  
 
   try {
     const response = await fetch(`${baseUrl}/add_region_counter`, {
@@ -250,7 +262,7 @@ document.getElementById('addCounterBtn').addEventListener('click', async () => {
       fetchAndRenderData(dateSelector.value);  // 新增後重新載入數據
     } else if (response.status === 409) {
       alert(result.message || '該時段已存在');
-    } else if (response.status === 503) {
+    } else if (response.status === 503 || result.message || "服務中，無法進行新增操作") {
       alert('服務中，無法進行新增操作。');
     } else {
       alert('伺服器錯誤，請稍後再試');

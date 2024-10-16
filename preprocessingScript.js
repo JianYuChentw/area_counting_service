@@ -122,33 +122,46 @@ async function checkAndInsertRegionCounters() {
 
     console.log('已成功連線資料庫，開始檢查 region_counters...');
 
-    // 獲取所有區域與時段
+    // 獲取所有區域
     const [regions] = await conn.query('SELECT * FROM regions');
-    const [timePeriods] = await conn.query('SELECT * FROM time_periods');
-
-    console.log(
-      `獲取到 ${regions.length} 個區域，${timePeriods.length} 個時段`
-    );
+    console.log(`獲取到 ${regions.length} 個區域`);
 
     // 獲取接下來10天的日期（台北時間）
     const futureDates = getDatesForNextTenDays();
     console.log('未來 10 天日期範圍:', futureDates.join(', '));
 
+    // 開始遍歷每個區域
     for (const region of regions) {
-      console.log(`檢查區域: ${region.name} (ID: ${region.id})`);
+      console.log(`檢查區域: ${region.area} (ID: ${region.id})`);
 
-      for (const timePeriod of timePeriods) {
-        console.log(
-          `  檢查時段: ${timePeriod.start_time} - ${timePeriod.end_time}`
-        );
+      // 查詢該區域的歷史時段資料
+      const queryHistory = `
+        SELECT region_id, counter_time, max_counter_value, counter_value
+        FROM region_counters
+        WHERE region_id = ? AND date = ?`;
 
-        for (const date of futureDates) {
-          console.log(`    檢查日期: ${date}`);
+      // 查詢今天的歷史資料作為未來時段的參考
+      const [historyTimePeriods] = await conn.query(queryHistory, [region.id, futureDates[0]]);
+      console.log(`獲取到 ${historyTimePeriods.length} 條歷史時段資料`);
+
+      // 如果沒有歷史資料，跳過這個區域
+      if (historyTimePeriods.length === 0) {
+        console.log(`未找到區域 ${region.area} 的歷史時段資料，跳過...`);
+        continue;
+      }
+
+      // 遍歷未來 10 天
+      for (const date of futureDates) {
+        // console.log(`  檢查日期: ${date}`);
+
+        // 使用歷史時段替代 timePeriods
+        for (const historyTimePeriod of historyTimePeriods) {
+          // console.log(`    檢查時段: ${historyTimePeriod.counter_time}`);
 
           // 檢查該區域、時段、日期是否已有資料
           const [existingRecords] = await conn.query(
             'SELECT * FROM region_counters WHERE region_id = ? AND counter_time = ? AND date = ?',
-            [region.id, timePeriod.start_time, date]
+            [region.id, historyTimePeriod.counter_time, date]
           );
 
           if (existingRecords.length === 0) {
@@ -157,17 +170,17 @@ async function checkAndInsertRegionCounters() {
               'INSERT INTO region_counters (region_id, counter_time, date, max_counter_value, counter_value) VALUES (?, ?, ?, ?, ?)',
               [
                 region.id,
-                timePeriod.start_time,
+                historyTimePeriod.counter_time,
                 date,
-                region.max_count,
-                region.max_count,
+                historyTimePeriod.max_counter_value,
+                historyTimePeriod.counter_value,
               ]
             );
             console.log(
-              `      已插入: 區域 ${region.name}，日期 ${date}，時段 ${timePeriod.start_time}`
+              `      已插入: 區域 ${region.area}，日期 ${date}，時段 ${historyTimePeriod.counter_time}`
             );
           } else {
-            console.log(`      已存在記錄，跳過插入`);
+            // console.log(`      已存在記錄，跳過插入`);
           }
         }
       }
@@ -182,6 +195,7 @@ async function checkAndInsertRegionCounters() {
     }
   }
 }
+
 
 module.exports = {
   checkAndInsertRegionCounters,
